@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "interpro",
+  "url": "https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/P27708/?page_size=25&cursor=source%7Cs%7Cipr036914&page=1",
+  "exchanges": [
+    {
+      "fetched": 1795835017,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 96,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"count":26,"next":null,"previous":"https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/P27708/?cursor=-source%7Cs%7Cipr058047&page=1&page_size=25","results":[{"metadata":{"accession":"IPR058047","name":"Carbamoyl phosphate synthase, preATP-grasp domain","source_database":"interpro","type":"domain","integrated":null,"member_databases":{"pfam":{"PF25596":"Carbamoyl phosphate synthase preATP-grasp domain"}},"go_terms":null},"proteins":[{"accession":"p27708","protein_length":2225,"source_database":"reviewed","organism":"9606","in_alphafold":true,"entry_protein_locations":[{"fragments":[{"start":394,"end":510,"dc-status":"CONTINUOUS"}],"representative":false,"model":null,"score":null},{"fragments":[{"start":933,"end":1043,"dc-status":"CONTINUOUS"}],"representative":false,"model":null,"score":null}]}]}]}
+      }
+    }
+  ]
+}

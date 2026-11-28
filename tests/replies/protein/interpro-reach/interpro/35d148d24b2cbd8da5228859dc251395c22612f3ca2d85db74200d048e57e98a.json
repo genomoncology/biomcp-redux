@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "interpro",
+  "url": "https://www.ebi.ac.uk/interpro/api/entry/interpro/protein/uniprot/P01116/?page_size=25",
+  "exchanges": [
+    {
+      "fetched": 1795835021,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 1039,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"count":4,"next":null,"previous":null,"results":[{"metadata":{"accession":"IPR001806","name":"Small GTPase","source_database":"interpro","type":"family","integrated":null,"member_databases":{"profile":{"PS51421":"Small GTPase Ras domain profile"},"pfam":{"PF00071":"Ras family"},"smart":{"SM00174":"Rho (Ras homology) subfamily of Ras-like small GTPases"}},"go_terms":[{"identifier":"GO:0005525","name":"GTP binding","category":{"code":"F","name":"molecular_function"}}]},"proteins":[{"accession":"p01116","protein_length":189,"source_database":"reviewed","organism":"9606","in_alphafold":true,"entry_protein_locations":[{"fragments":[{"start":1,"end":189,"dc-status":"CONTINUOUS"}],"representative":false,"model":null,"score":null}]}]},{"metadata":{"accession":"IPR005225","name":"Small GTP-binding domain","source_database":"interpro","type":"domain","integrated":null,"member_databases":{"ncbifam":{"TIGR00231":"small GTP-binding protein domain"}},"go_terms":[{"identifier":"GO:0005525","name":"GTP binding","category":{"code":"F","name":"molecular_function"}}]},"proteins":[{"accession":"p01116","protein_length":189,"source_database":"reviewed","organism":"9606","in_alphafold":true,"entry_protein_locations":[{"fragments":[{"start":1,"end":159,"dc-status":"CONTINUOUS"}],"representative":false,"model":null,"score":null}]}]},{"metadata":{"accession":"IPR020849","name":"Small GTPase, Ras-type","source_database":"interpro","type":"family","integrated":null,"member_databases":{"panther":{"PTHR24070":"RAS, DI-RAS, AND RHEB FAMILY MEMBERS OF SMALL GTPASE SUPERFAMILY"}},"go_terms":[{"identifier":"GO:0003924","name":"GTPase activity","category":{"code":"F","name":"molecular_function"}},{"identifier":"GO:0005525","name":"GTP binding","category":{"code":"F","name":"molecular_function"}},{"identifier":"GO:0007165","name":"signal transduction","category":{"code":"P","name":"biological_process"}},{"identifier":"GO:0016020","name":"membrane","category":{"code":"C","name":"cellular_component"}}]},"proteins":[{"accession":"p01116","protein_length":189,"source_database":"reviewed","organism":"9606","in_alphafold":true,"entry_protein_locations":[{"fragments":[{"start":3,"end":176,"dc-status":"CONTINUOUS"}],"representative":false,"model":null,"score":null}]}]},{"metadata":{"accession":"IPR027417","name":"P-loop containing nucleoside triphosphate hydrolase","source_database":"interpro","type":"homologous_superfamily","integrated":null,"member_databases":{"cathgene3d":{"G3DSA:3.40.50.300":"P-loop containing nucleotide triphosphate hydrolases"},"ssf":{"SSF52540":"P-loop containing nucleoside triphosphate hydrolases"}},"go_terms":null},"proteins":[{"accession":"p01116","protein_length":189,"source_database":"reviewed","organism":"9606","in_alphafold":true,"entry_protein_locations":[{"fragments":[{"start":1,"end":171,"dc-status":"CONTINUOUS"}],"representative":false,"model":null,"score":null}]}]}]}
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+feature: protein-domains-complexes
+live_check: public
+story: InterPro entries span native pages, an empty source reply yields zero entries, and omitted member signatures have their own count.
+verified: Recorded from the public InterPro API in pm job j48609. Integrated replies are CC0 (https://interpro-documentation.readthedocs.io/en/latest/license.html). Unintegrated replies retain only the count or the original HTTP 204.
+replay: protein/interpro-reach
+steps:
+  - run: [protein, domains, P27708, --limit, "25"]
+    expect:
+      /status: complete
+      /page/total: 26
+      /page/returned: 25
+      /result/items/0/id: IPR002082
+      /result/items/24/id: IPR036914
+  - follow: page
+    expect:
+      /status: complete
+      /page/offset: 25
+      /page/total: 26
+      /page/returned: 1
+      /result/items/0/id: IPR058047
+  - run: [protein, domains, Q05BU3]
+    expect:
+      /status: complete
+      /sources/0/state: ok
+      /page/total: 0
+      /result/items: []
+  - run: [protein, domains, P01116]
+    expect:
+      /status: complete
+      /page/total: 4
+      /result/native_total: 4
+      /result/items: {count: 4}
+      /sources/0/notices/0/message: Omitted 7 unintegrated member-database signatures.

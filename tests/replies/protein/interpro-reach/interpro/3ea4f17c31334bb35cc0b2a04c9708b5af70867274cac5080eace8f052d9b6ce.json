@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "interpro",
+  "url": "https://www.ebi.ac.uk/interpro/api/entry/unintegrated/protein/uniprot/Q05BU3/?page_size=1",
+  "exchanges": [
+    {
+      "fetched": 1795835020,
+      "status": 204,
+      "content_type": "application/json",
+      "delay_ms": 432,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "text",
+        "value": ""
+      }
+    }
+  ]
+}
