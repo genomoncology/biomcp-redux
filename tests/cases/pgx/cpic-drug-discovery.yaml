@@ -1,0 +1,14 @@
+feature: cpic-pgx
+story: Find all seven CPIC pair genes for warfarin by its drug name.
+live_check: public
+verified: Recorded from CPIC by BioMCP on 2026-11-28.
+replay: pgx/cpic-drug-discovery
+steps:
+  - run: [search, pgx, --drug, warfarin, --source, cpic, --limit, '7']
+    expect:
+      /status: complete
+      /result/header/drug: warfarin
+      /result/page/returned: 7
+      /result/page/total: 7
+      /result/page/total_kind: source
+      /result/items/*/genesymbol: [CYP2C9, CYP4F2, VKORC1, CALU, GGCX, PROC, PROS1]

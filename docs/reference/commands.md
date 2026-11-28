@@ -936,17 +936,16 @@ Options:
 ```
 
 Search CPIC pairs or ClinPGx clinical annotations. Sources: clinpgx, cpic.
-Listed choices accept any letter case; replies use their listed spelling.
-Options apply to every listed source unless their description restricts them.
+Choices ignore case. Replies use listed spelling.
 Paging: --limit and --offset.
 
-- `--cpic-level`: Exact CPIC level, including B/C. Value form: string; example: --cpic-level B/C; only with --source cpic.
-- `--drug`: Drug name for CPIC or ClinPGx. Value form: string; example: --drug warfarin.
-- `--gene`: Gene symbol for CPIC pairs. Value form: string; example: --gene DPYD; only with --source cpic.
-- `--limit`: Rows per source page. Value form: integer; example: --limit 1.
-- `--offset`: Source offset. Value form: integer; example: --offset 1.
-- `--source`: Source of pairs or clinical annotations. Value form: string; example: --source cpic.
-- `--variant`: dbSNP rsID for ClinPGx. Value form: string; example: --variant rs12777823; only with --source clinpgx.
+- `--cpic-level`: Exact CPIC level, including B/C. Value form: string; example: B/C; only with --source cpic.
+- `--drug`: Drug name for CPIC or ClinPGx. Value form: string; example: warfarin.
+- `--gene`: Gene symbol for CPIC pairs. Value form: string; example: DPYD; only with --source cpic.
+- `--limit`: Rows per source page. Value form: integer; example: 1.
+- `--offset`: Source offset. Value form: integer; example: 0.
+- `--source`: Source of pairs or clinical annotations. Value form: string; example: cpic.
+- `--variant`: dbSNP rsID for ClinPGx. Value form: string; example: rs12777823; only with --source clinpgx.
 
 ## biomcp search diagnostic
 
@@ -3072,24 +3071,23 @@ Options:
 ```
 
 Get pharmacogenomic evidence and source sections. Sources: clinpgx, cpic.
-Listed choices accept any letter case; replies use their listed spelling.
-Options apply to every listed source unless their description restricts them.
+Choices ignore case. Replies use listed spelling.
 Paging: --limit and --offset; --section-limit and --section-offset are the same options.
 
-- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string; example: --annotation-id <annotation-id> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
-- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string; example: --diplotype 'c.1905+1G>A (*2A)/Reference'; only with --source cpic.
-- `--drug`: Drug name for ClinPGx clinical annotations. Value form: string; example: --drug warfarin; only with --source clinpgx.
-- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string; example: --drug-id RxNorm:343047; only with --source cpic.
-- `--gene`: Explicit source gene symbol. Value form: string; example: --gene DPYD.
-- `--kind`: One ClinPGx collection; clinical is the default only on annotations. Value form: string; example: --kind clinical; only with --source clinpgx.
-- `--level`: Evidence level for ClinPGx clinical annotations. Value form: string; example: --level 1A; only with --source clinpgx.
-- `--phenotype`: Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only. Value form: string; example: --phenotype 'Poor Metabolizer'; only with --source cpic.
+- `--annotation-id`: Checked ClinPGx accession, never a shared PaId. Value form: string; example: <annotation-id> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
+- `--diplotype`: Unchanged declared expression required for the diplotype section only. Value form: string; example: 'c.1905+1G>A (*2A)/Reference'; only with --source cpic.
+- `--drug`: Drug name for ClinPGx clinical annotations. Value form: string; example: warfarin; only with --source clinpgx.
+- `--drug-id`: Exact published CPIC drug key; recommendations only. Value form: string; example: RxNorm:343047; only with --source cpic.
+- `--gene`: Explicit source gene symbol. Value form: string; example: DPYD.
+- `--kind`: One ClinPGx collection; clinical is the default only on annotations. Value form: string; example: clinical; only with --source clinpgx.
+- `--level`: Evidence level for ClinPGx clinical annotations. Value form: string; example: 1A; only with --source clinpgx.
+- `--phenotype`: Exact CPIC phenotype for the gene, such as Poor Metabolizer; recommendations with --drug-id only. Value form: string; example: 'Poor Metabolizer'; only with --source cpic.
 - `section`: One named section; omitted means the CPIC gene card… (full rule with the sections).
 Form: get pgx SECTION; not --section.
-- `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer; example: --section-limit 1.
-- `--section-offset`: Offset within the selected section. Value form: integer; example: --section-offset 0.
-- `--snapshot`: Retained collection for local continuation. Value form: string; example: --snapshot <snapshot> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
-- `--source`: Required source, checked against the section. Value form: string; example: --source cpic.
+- `--section-limit`: Rows per page: three clinical, five elsewhere. Value form: integer; example: 1.
+- `--section-offset`: Offset within the selected section. Value form: integer; example: 0.
+- `--snapshot`: Retained collection for local continuation. Value form: string; example: <snapshot> (syntax; replace the placeholder with your retained value); only with --source clinpgx.
+- `--source`: Required source, checked against the section. Value form: string; example: cpic.
 
 One named section; omitted means the CPIC gene card.
 
