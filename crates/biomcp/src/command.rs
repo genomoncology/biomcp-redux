@@ -151,8 +151,8 @@ fn parse_arguments(
     let parsed = match crate::grammar::parse(root, args) {
         Ok(parsed) => parsed,
         Err(cause) => {
-            let outcome = if !cause.prefer_argument_error
-                && let Some(message) = retired
+            let outcome = if let Some(message) = retired
+                && (!cause.prefer_argument_error || message == biomcp_types::ErrorMessage::PgxText)
             {
                 let next = crate::retired::steps(root, canonical.as_deref().unwrap_or(args));
                 usage_envelope(UsageError::Retired(message, next), encoding)
