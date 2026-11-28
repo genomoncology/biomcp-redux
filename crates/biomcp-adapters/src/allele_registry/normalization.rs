@@ -87,11 +87,14 @@ fn protein_candidates(
             let Some(url) = problems.required_field(ID, link.id) else {
                 continue;
             };
-            let id = raw::allele_id(&url).ok().and_then(|(_, id)| match id {
-                biodata::VariantId::Ca(id) => Some(id),
-                _ => None,
+            let id = raw::allele_id(&url).and_then(|(_, id)| match id {
+                biodata::VariantId::Ca(id) => Ok(id),
+                _ => Err(biomcp_fetch::BadReply),
             });
-            if problems.required(ID, id).is_some_and(|id| seen.insert(id)) {
+            if problems
+                .optional(ID, Some(id))
+                .is_some_and(|id| seen.insert(id))
+            {
                 candidates.push(NormalizationField {
                     field: ID.into(),
                     value: url.to_string().into(),
