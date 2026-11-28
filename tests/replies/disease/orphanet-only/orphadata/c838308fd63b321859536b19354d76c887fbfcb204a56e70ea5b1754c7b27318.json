@@ -10,7 +10,7 @@
       "retry_after_ms": null,
       "body": {
         "kind": "text",
-        "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<JDBOR date=\"2026-06-23 07:53:50\" version=\"synthetic-1\" dbserver=\"synthetic\">\n  <Availability><Licence><ShortIdentifier>CC-BY-4.0</ShortIdentifier></Licence></Availability>\n  <DisorderList count=\"2\">\n    <Disorder id=\"900001\">\n      <OrphaCode>699029</OrphaCode><Name lang=\"en\">Synthetic unmapped disorder</Name>\n      <DisorderType><Name lang=\"en\">Disease</Name></DisorderType>\n    </Disorder>\n    <Disorder id=\"900002\">\n      <OrphaCode>900002</OrphaCode><Name lang=\"en\">Synthetic disorder without epidemiology</Name>\n      <DisorderType><Name lang=\"en\">Clinical subtype</Name></DisorderType>\n    </Disorder>\n  </DisorderList>\n</JDBOR>\n"
+        "value": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<JDBOR date=\"2026-06-23 07:53:50\" version=\"synthetic-1\" dbserver=\"synthetic\">\n  <Availability><Licence><ShortIdentifier>CC-BY-4.0</ShortIdentifier></Licence></Availability>\n  <DisorderList count=\"2\">\n    <Disorder id=\"900001\">\n      <OrphaCode>699029</OrphaCode><Name lang=\"en\">Synthetic unmapped disorder</Name>\n      <DisorderType><Name lang=\"en\">Disease</Name></DisorderType>\n    </Disorder>\n    <Disorder id=\"900002\">\n      <OrphaCode>90051</OrphaCode><Name lang=\"en\">Synthetic disorder without epidemiology</Name>\n      <DisorderType><Name lang=\"en\">Clinical subtype</Name></DisorderType>\n    </Disorder>\n  </DisorderList>\n</JDBOR>\n"
       }
     }
   ]

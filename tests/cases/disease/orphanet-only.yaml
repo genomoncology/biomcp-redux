@@ -32,9 +32,11 @@ steps:
       /status: complete
       /query/source: orphadata
       /page/total: 1
-  - run: [get, disease, "Orphanet:900002"]
+  - run: [get, disease, "Orphanet:90051"]
     expect:
-      /status: complete
-      /result/returned_id: "ORPHA:900002"
+      /status: partial
+      /result/returned_id: "ORPHA:90051"
       /result/concept/label: Synthetic disorder without epidemiology
       /result/disorder_type: Clinical subtype
+      /sources/0/reason: bad-reply
+      /sources/1/state: ok

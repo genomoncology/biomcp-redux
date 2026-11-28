@@ -38,8 +38,13 @@ pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &biodata::Curie) -> Outc
         leg.finish(),
         error.or(label_error),
     ));
-    if query.orpha_card_fallback() && error.and_then(status::reason) == Some(Reason::NotFound) {
-        out.sources[0].set_status(SourceStatus::Skipped(Some(Reason::NotFound)));
+    let reason = error.and_then(status::reason);
+    if query.orpha_card_fallback() && matches!(reason, Some(Reason::NotFound | Reason::BadReply)) {
+        if reason == Some(Reason::NotFound) {
+            out.sources[0].set_status(SourceStatus::Skipped(reason));
+        } else {
+            super::page::record_problem(&mut out, query, Source::MyDisease);
+        }
         super::orphadata::card(cx, query, id, deadline, &mut out);
         command.finish(deadline.remaining());
         return out;

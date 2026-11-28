@@ -36,7 +36,13 @@ pub(super) fn card(
         }
     }
     out.sources.push(source);
-    status::item(out, found, error.is_some(), false);
+    let failed = error.is_some()
+        || (!found
+            && out
+                .sources
+                .iter()
+                .any(|source| source.state == SourceState::Failed));
+    status::item(out, found, failed, false);
 }
 
 pub(crate) fn get(cx: &Ctx<'_>, query: &DiseaseGet, id: &Curie) -> Outcome {
