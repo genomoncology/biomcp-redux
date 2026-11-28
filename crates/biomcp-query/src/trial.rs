@@ -93,16 +93,16 @@ fn search<'a>(
         outcome.sources.push(source);
         return outcome;
     }
-    let (mut result, mut name_notice) =
+    let (mut result, mut search_notices) =
         ctgov::search_query(&leg, &widened.query, gene.as_deref(), conditions);
     let changed = !expanded.inputs.is_empty() || !widened.notices.is_empty();
     let typed_only = changed && crate::drug::search_names::rejected(result.as_ref().err());
     if typed_only {
-        (result, name_notice) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
+        (result, search_notices) = ctgov::search_query(&leg, query, gene.as_deref(), conditions);
     }
     let searched = if typed_only { query } else { &widened.query };
     let rejected = request_rejected(result.as_ref().err());
-    let generic_rejected = name_notice.is_none() && rejected;
+    let generic_rejected = search_notices.is_empty() && rejected;
     let version = match &result {
         Ok(_) => ctgov::version(&leg),
         Err(error) => Err(*error),
@@ -115,7 +115,7 @@ fn search<'a>(
         .or_else(|| result.as_ref().ok().and_then(|page| page.side_error()));
     *deadline = deadline.after_stage(started.saturating_sub(leg.remaining()));
     let mut source = status::source(Source::ClinicalTrialsGov, leg.finish(), error);
-    source.notices.extend(name_notice);
+    source.notices.extend(search_notices);
     source.notices.extend(widened.notices);
     if typed_only {
         retract(&expanded.inputs, &mut source, &mut outcome);

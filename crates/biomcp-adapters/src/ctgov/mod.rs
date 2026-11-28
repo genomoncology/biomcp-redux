@@ -1,5 +1,7 @@
 //! Native registry discovery; no local clinical interpretation or reordering.
 use biomcp_fetch::Input;
+mod alias;
+pub use alias::alias_notice;
 pub mod criteria;
 pub mod detail;
 pub mod document;
@@ -73,16 +75,13 @@ impl SearchPage {
 }
 /// Exact parameters; resolved gene text is explicit and attributed to HGNC by the caller.
 pub fn parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
-    name_parameters(query, gene, query.broader_names())
-}
-/// Provider-native name search, preserving every other registry filter.
-pub fn broader_parameters(query: &TrialSearch, gene: Option<&str>) -> BTreeMap<String, String> {
-    name_parameters(query, gene, true)
+    name_parameters(query, gene, query.broader_names(), query.id().copied())
 }
 fn name_parameters(
     query: &TrialSearch,
     gene: Option<&str>,
     broader_names: bool,
+    id: Option<biodata::NctId>,
 ) -> BTreeMap<String, String> {
     let mut p = filters::base_parameters(query);
     for (name, values) in [
@@ -100,7 +99,7 @@ fn name_parameters(
     if let Some(status) = query.status() {
         p.insert("filter.overallStatus".into(), status.as_str().to_owned());
     }
-    let advanced = filters::advanced(query, broader_names);
+    let advanced = filters::advanced(query, broader_names, id);
     if !advanced.is_empty() {
         p.insert("filter.advanced".into(), advanced);
     }

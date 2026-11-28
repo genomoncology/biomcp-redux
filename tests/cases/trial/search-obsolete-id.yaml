@@ -1,0 +1,29 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "Registry ID search finds the replacement for an obsolete ID and keeps a genuinely unknown ID at zero.",
+  "verified": "BioMCP recorded the public ClinicalTrials.gov exact searches, alias lookups and registry version. The alias reply omits the unused last-page cursor.",
+  "replay": "trial/obsolete-id",
+  "steps": [
+    {
+      "run": ["search", "trial", "--id", "NCT01141231"],
+      "expect": {
+        "/status": "complete",
+        "/query/id": "NCT01141231",
+        "/page/total": 1,
+        "/result/items/*/nct_id": {"equals": ["NCT02589938"]},
+        "/sources/0/notices/*/message": {
+          "includes": "ClinicalTrials.gov lists NCT01141231 as an obsolete alias for NCT02589938."
+        }
+      }
+    },
+    {
+      "run": ["search", "trial", "--id", "NCT01811710"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 0,
+        "/result/items": {"count": 0}
+      }
+    }
+  ]
+}

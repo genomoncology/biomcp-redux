@@ -1,6 +1,7 @@
 # 1225 — trial-obsolete-nct-alias
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: 00ebc15ec54854274ee7c465960988799e1e1100
 
 Milestone: 10
 

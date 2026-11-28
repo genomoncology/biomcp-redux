@@ -55,7 +55,7 @@ fn fetch(
     let rows: Vec<_> = query
         .input()
         .iter()
-        .map(|id| ctgov::detail::get(&leg, *id))
+        .map(|id| ctgov::detail::get_with_alias(&leg, *id))
         .collect();
     let version = rows.iter().any(Result::is_ok).then(|| ctgov::version(&leg));
     let error = rows
@@ -75,6 +75,12 @@ fn fetch(
     for (id, row) in query.input().iter().zip(rows) {
         match row {
             Ok((detail, metadata)) => {
+                let canonical = detail.card.nct_id;
+                if *id != canonical
+                    && let Some(source) = out.sources.last_mut()
+                {
+                    source.notices.push(ctgov::alias_notice(*id, canonical));
+                }
                 let mut own_source = source.clone();
                 if own_source.state == SourceState::Failed && source_updated.is_some() {
                     own_source.set_status(biomcp_types::SourceStatus::Ok);
@@ -91,21 +97,15 @@ fn fetch(
                     out.body = ReplyData::Usage(biomcp_types::UsageError::offset_past_text(length));
                     return Ok(());
                 }
-                let pool = if query.sections().is_empty() {
-                    None
-                } else {
-                    crate::publish::keep(
-                        source_snapshot::write(
-                            cx,
-                            &source_snapshot::key(SNAPSHOT_NAMESPACE, id)?,
-                            &snapshot,
-                            &snapshot.sources,
-                            deadline,
-                        ),
-                        out,
-                    )?
-                };
-                items.push(page::render(query, snapshot, pool, out, arm_projection)?);
+                let pool = keep_section_snapshot(cx, query, &snapshot, out, deadline)?;
+                items.push(page::render(
+                    query,
+                    *id,
+                    snapshot,
+                    pool,
+                    out,
+                    arm_projection,
+                )?);
             }
             Err(e) if not_found(e) => items.push(unresolved(
                 *id,
@@ -123,6 +123,27 @@ fn fetch(
     say_unread(query, &unread, out);
     finish(query, items, source_updated, out);
     Ok(())
+}
+fn keep_section_snapshot(
+    cx: &Ctx<'_>,
+    query: &TrialGet,
+    snapshot: &Snapshot,
+    out: &mut Outcome,
+    deadline: biomcp_fetch::Deadline<'_>,
+) -> Result<Option<biodata::Text>, RequestError> {
+    if query.sections().is_empty() {
+        return Ok(None);
+    }
+    crate::publish::keep(
+        source_snapshot::write(
+            cx,
+            &source_snapshot::key(SNAPSHOT_NAMESPACE, &snapshot.detail.card.nct_id)?,
+            snapshot,
+            &snapshot.sources,
+            deadline,
+        ),
+        out,
+    )
 }
 /// Say on the item itself why it was not read, and whether the cause is BioMCP's own limit.
 fn failure(reason: Option<biomcp_types::Reason>) -> biomcp_types::TrialItemFailure {
@@ -278,7 +299,14 @@ fn restore(
     {
         cx.fetch.retain_data_date(source, version.value.as_str());
     }
-    let item = page::render(query, snapshot, query.pool().cloned(), out, arm_projection)?;
+    let item = page::render(
+        query,
+        id,
+        snapshot,
+        query.pool().cloned(),
+        out,
+        arm_projection,
+    )?;
     finish(query, vec![item], version, out);
     Ok(())
 }
