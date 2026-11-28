@@ -2,7 +2,7 @@
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::Text;
 use biomcp_fetch::{BadReply, PathSegment, Reply};
-use biomcp_types::Source;
+use biomcp_types::{LitVarCandidate, Source};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -17,15 +17,19 @@ struct Candidate {
     pmids_count: Option<Field<u64>>,
 }
 impl Candidate {
-    fn admitted(&self) -> bool {
-        PathSegment::new(&self.id).is_ok()
+    fn admitted(&self) -> Option<Text> {
+        if super::is_native_id(&self.id) && PathSegment::new(&self.id).is_ok() {
+            Text::new(&self.id).ok()
+        } else {
+            None
+        }
     }
 }
 impl Candidates {
     pub(super) fn eligible(&self) -> bool {
         self.0
             .iter()
-            .all(|row| row.as_ref().is_some_and(Candidate::admitted))
+            .all(|row| row.as_ref().and_then(Candidate::admitted).is_some())
     }
     pub(super) fn mapped(self) -> Mapped<Vec<super::Candidate>> {
         let mut problems = Problems {
@@ -42,26 +46,28 @@ impl Candidates {
                 continue;
             };
             problems.record = crate::mapped::record(&row.id);
-            if !row.admitted() {
+            let Some(id) = row.admitted() else {
                 refusals = crate::Refusal::Refused;
                 problems.required::<()>("identity", None);
                 continue;
-            }
+            };
             value.push(super::Candidate {
-                id: row.id,
-                rsid: problems.field("rsid", row.rsid).and_then(|value| {
-                    problems.optional(
-                        "rsid",
-                        Some(if super::is_rsid(value.as_str()) {
-                            Ok(value)
-                        } else {
-                            Err(BadReply)
-                        }),
-                    )
-                }),
-                gene: problems.fields("gene", row.gene).into_vec(),
-                name: problems.source_field("name", row.name),
-                pmids_count: problems.field("pmids_count", row.pmids_count),
+                id,
+                details: LitVarCandidate {
+                    rsid: problems.field("rsid", row.rsid).and_then(|value| {
+                        problems.optional(
+                            "rsid",
+                            Some(if super::is_rsid(value.as_str()) {
+                                Ok(value)
+                            } else {
+                                Err(BadReply)
+                            }),
+                        )
+                    }),
+                    gene: problems.fields("gene", row.gene).into_vec(),
+                    name: problems.source_field("name", row.name),
+                    count: problems.field("pmids_count", row.pmids_count),
+                },
             });
         }
         Mapped {

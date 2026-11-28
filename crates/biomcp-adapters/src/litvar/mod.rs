@@ -30,11 +30,11 @@ const PUBLICATIONS: Endpoint = SPEC.get("/variant/get").fresh(Freshness::Days(1)
 /// Exact source identity retained between autocomplete and publications.
 #[derive(Debug)]
 pub struct Variant {
-    id: String,
+    id: Text,
     term: Text,
 }
 impl Variant {
-    /// Source rsID, or its variant name when it has no rsID.
+    /// Source rsID, variant name, or explicitly selected LitVar ID.
     pub fn term(&self) -> &Text {
         &self.term
     }
@@ -45,7 +45,7 @@ pub enum Selection {
     /// Exactly one source variant matched.
     Exact(Variant),
     /// No publications call may be made.
-    Candidates(Vec<LitVarCandidate>),
+    Candidates(Vec<Candidate>),
 }
 /// One selected variant's whole source count and bounded native sequence.
 #[derive(Debug)]
@@ -61,12 +61,24 @@ pub struct Search {
     /// Rejected native fields and publication identities.
     pub problems: Vec<biomcp_types::Problem>,
 }
-/// Select by exact case-insensitive gene/change or rsID, never by hit position.
+/// Select a supplied LitVar ID or match autocomplete by exact gene/change or rsID.
 pub fn select(
     leg: &Leg<'_>,
     gene: Option<&str>,
     variant: &str,
 ) -> Result<crate::Mapped<Selection>, RequestError> {
+    if is_native_id(variant)
+        && let Ok(id) = Text::new(variant)
+    {
+        return Ok(crate::Mapped {
+            refusals: crate::Refusal::None,
+            value: Selection::Exact(Variant {
+                term: id.clone(),
+                id,
+            }),
+            problems: Vec::new(),
+        });
+    }
     let rsid = is_rsid(variant);
     let change = variant
         .get(..2)
@@ -85,7 +97,9 @@ pub fn select(
         )
         .map(|received| received.value)?
         .mapped();
-    let mut matching = candidates.value.iter().filter_map(|row| {
+    let protein = format!("p.{change}");
+    let mut matching = candidates.value.iter().filter_map(|candidate| {
+        let row = &candidate.details;
         let matches = if rsid {
             row.rsid
                 .as_ref()
@@ -95,10 +109,10 @@ pub fn select(
                 row.gene
                     .iter()
                     .any(|g| g.as_str().eq_ignore_ascii_case(gene))
-            }) && row
-                .name
-                .as_ref()
-                .is_some_and(|name| name.as_str().eq_ignore_ascii_case(&format!("p.{change}")))
+            }) && row.name.as_ref().is_some_and(|name| {
+                name.as_str().eq_ignore_ascii_case(variant)
+                    || name.as_str().eq_ignore_ascii_case(&protein)
+            })
         };
         if !matches {
             return None;
@@ -106,19 +120,12 @@ pub fn select(
         row.rsid
             .as_ref()
             .or(row.name.as_ref())
-            .map(|term| (row, term))
+            .map(|term| (candidate, term))
     });
     let Some((selected, term)) = matching.next().filter(|_| matching.next().is_none()) else {
         return Ok(crate::Mapped {
             refusals: candidates.refusals,
-            value: Selection::Candidates(
-                candidates
-                    .value
-                    .into_iter()
-                    .take(5)
-                    .map(Candidate::public)
-                    .collect(),
-            ),
+            value: Selection::Candidates(candidates.value.into_iter().take(5).collect()),
             problems: candidates.problems,
         });
     };
@@ -133,7 +140,7 @@ pub fn select(
 }
 /// Fetch publications only after exact source identity selection.
 pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestError> {
-    let segments = [&selected.id, "publications"]
+    let segments = [selected.id.as_str(), "publications"]
         .into_iter()
         .map(PathSegment::new)
         .collect::<Result<Vec<_>, _>>()?;
@@ -182,22 +189,20 @@ pub fn publications(leg: &Leg<'_>, selected: Variant) -> Result<Search, RequestE
         problems: problems.list,
     })
 }
-struct Candidate {
-    id: String,
-    rsid: Option<Text>,
-    gene: Vec<Text>,
-    name: Option<biodata::Text>,
-    pmids_count: Option<u64>,
+/// One autocomplete row with the source identity needed to select it.
+#[derive(Debug)]
+pub struct Candidate {
+    /// Exact LitVar record ID.
+    pub id: Text,
+    /// Candidate labels and publication count reported by the source.
+    pub details: LitVarCandidate,
 }
-impl Candidate {
-    fn public(self) -> LitVarCandidate {
-        LitVarCandidate {
-            rsid: self.rsid,
-            gene: self.gene,
-            name: self.name,
-            count: self.pmids_count,
-        }
-    }
+
+/// Recognize an explicit LitVar record selector.
+pub fn is_native_id(value: &str) -> bool {
+    value
+        .strip_prefix("litvar@")
+        .is_some_and(|suffix| !suffix.is_empty())
 }
 /// Recognize the exact rsID spelling accepted by variant lookup.
 pub fn is_rsid(value: &str) -> bool {
