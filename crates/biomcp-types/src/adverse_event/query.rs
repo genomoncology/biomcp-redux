@@ -9,6 +9,12 @@ mod names;
 fn default_source() -> AdverseEventSource {
     AdverseEventSource::Faers
 }
+fn default_search_source() -> Option<AdverseEventSource> {
+    Some(default_source())
+}
+fn first_page_offset() -> Option<u32> {
+    Some(0)
+}
 fn default_limit() -> u32 {
     5
 }
@@ -75,9 +81,13 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(extend("x-required-component" = super::AdverseEventSource::Maude.required_search_component())))]
     event_type: Option<MaudeEventType>,
     #[doc = "Source; default FAERS.\nVAERS requires an exact supported vaccine name."]
-    #[serde(default = "default_source")]
-    #[cfg_attr(feature = "schema", schemars(extend("x-required-components" = super::AdverseEventSource::search_components())))]
-    source: AdverseEventSource,
+    #[serde(
+        default = "default_search_source",
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "AdverseEventSource", extend("x-required-components" = super::AdverseEventSource::search_components())))]
+    source: Option<AdverseEventSource>,
     #[doc = "Report counts.\nreactions: FAERS reaction-term buckets; needs MedDRA. \
         received-year or received-month: FAERS or MAUDE reports per FDA receipt period between \
         --received-from and --received-to, same names and filters as the search; partly covered periods are marked partial. \
@@ -118,12 +128,25 @@ struct SearchFields {
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::SEARCH_PAGE_MAX)))]
     limit: u32,
     /// Report row offset; counts need zero. VAERS needs its snapshot.
-    #[serde(default)]
-    offset: u32,
+    #[serde(
+        default = "first_page_offset",
+        deserialize_with = "crate::query::present",
+        skip_serializing_if = "Option::is_none"
+    )]
+    #[cfg_attr(feature = "schema", schemars(with = "u32"))]
+    offset: Option<u32>,
 }
 impl SearchFields {
+    fn source(&self) -> AdverseEventSource {
+        self.source.unwrap_or_else(default_source)
+    }
+
+    fn offset(&self) -> u32 {
+        self.offset.unwrap_or_default()
+    }
+
     fn validate_drug_names(&self) -> Result<(), QueryInvalid> {
-        if self.source == AdverseEventSource::Faers
+        if self.source() == AdverseEventSource::Faers
             && self.drug.iter().any(|name| {
                 let mut words = name.as_str().split_whitespace();
                 let _ = words.next();
@@ -145,8 +168,8 @@ impl SearchFields {
             .aggregate
             .is_some_and(AdverseEventAggregate::is_received);
         if self.aggregate.is_some()
-            && self.source != AdverseEventSource::Faers
-            && !(received && self.source == AdverseEventSource::Maude)
+            && self.source() != AdverseEventSource::Faers
+            && !(received && self.source() == AdverseEventSource::Maude)
         {
             return Err(QueryInvalid::new(&["source", "aggregate"]));
         }
@@ -156,7 +179,7 @@ impl SearchFields {
                     .with_message(crate::ErrorMessage::AdverseReceivedCounts),
             );
         }
-        if self.aggregate.is_some() && self.offset != 0 {
+        if self.aggregate.is_some() && self.offset() != 0 {
             return Err(QueryInvalid::new(&["aggregate", "offset"]));
         }
         Ok(())
@@ -164,7 +187,7 @@ impl SearchFields {
     fn validate_scope(&self) -> Result<(), QueryInvalid> {
         self.validate_aggregate()?;
         names::validate(self)?;
-        if self.source == AdverseEventSource::Faers && self.offset > 25_000 {
+        if self.source() == AdverseEventSource::Faers && self.offset() > 25_000 {
             return Err(
                 QueryInvalid::new(&["offset"]).with_message(crate::ErrorMessage::FaersOffset)
             );
@@ -173,7 +196,7 @@ impl SearchFields {
             || !self.product_code.is_empty()
             || self.problem.is_some()
             || self.event_type.is_some();
-        if self.source != AdverseEventSource::Maude && maude_filter {
+        if self.source() != AdverseEventSource::Maude && maude_filter {
             return Err(QueryInvalid::new(&[
                 "source",
                 "manufacturer",
@@ -184,7 +207,7 @@ impl SearchFields {
         }
         if self.text.is_none()
             && self.drug.is_empty()
-            && !(self.source == AdverseEventSource::Maude && maude_filter)
+            && !(self.source() == AdverseEventSource::Maude && maude_filter)
         {
             return Err(QueryInvalid::new(&[
                 "text",
@@ -194,10 +217,10 @@ impl SearchFields {
                 "event_type",
             ]));
         }
-        if self.source != AdverseEventSource::Faers && self.drug_role.is_some() {
+        if self.source() != AdverseEventSource::Faers && self.drug_role.is_some() {
             return Err(QueryInvalid::new(&["source", "drug_role"]));
         }
-        if self.source != AdverseEventSource::Faers && !self.drug.is_empty() {
+        if self.source() != AdverseEventSource::Faers && !self.drug.is_empty() {
             return Err(QueryInvalid::new(&["source", "drug"]));
         }
         if !(1..=crate::SEARCH_PAGE_MAX).contains(&self.limit) {
@@ -206,14 +229,14 @@ impl SearchFields {
         Ok(())
     }
     fn validate_source_filters(&self) -> Result<(), QueryInvalid> {
-        if self.source != AdverseEventSource::Vaers
+        if self.source() != AdverseEventSource::Vaers
             && (self.section.is_some() || self.snapshot.is_some() || self.sort.is_some())
         {
             return Err(QueryInvalid::new(&[
                 "source", "section", "snapshot", "sort",
             ]));
         }
-        if self.source == AdverseEventSource::Vaers
+        if self.source() == AdverseEventSource::Vaers
             && self
                 .text
                 .as_ref()
@@ -222,7 +245,7 @@ impl SearchFields {
         {
             return Err(QueryInvalid::new(&["source", "text"]));
         }
-        if self.source != AdverseEventSource::Faers
+        if self.source() != AdverseEventSource::Faers
             && (self.reaction.is_some() || self.serious.is_some())
         {
             return Err(QueryInvalid::new(&[
@@ -233,7 +256,7 @@ impl SearchFields {
                 "received_to",
             ]));
         }
-        if self.source == AdverseEventSource::Vaers
+        if self.source() == AdverseEventSource::Vaers
             && (self.received_from.is_some() || self.received_to.is_some())
         {
             return Err(QueryInvalid::new(&[
@@ -290,7 +313,7 @@ impl AdverseEventSearch {
             product_code: vec![code],
             problem: None,
             event_type: None,
-            source: AdverseEventSource::Maude,
+            source: Some(AdverseEventSource::Maude),
             aggregate: None,
             section: None,
             sort: None,
@@ -300,7 +323,7 @@ impl AdverseEventSearch {
             received_from: None,
             received_to: None,
             limit: default_limit(),
-            offset: 0,
+            offset: first_page_offset(),
         })
     }
 
@@ -321,7 +344,7 @@ impl AdverseEventSearch {
     pub fn with_vaers_sort(&self, sort: super::VaersSort) -> Self {
         let mut q = self.clone();
         q.0.sort = Some(sort);
-        q.0.offset = 0;
+        q.0.offset = first_page_offset();
         q
     }
     /// Checked retained table identity.
@@ -339,7 +362,7 @@ impl AdverseEventSearch {
         let mut q = self.clone();
         q.0.section = Some(section);
         q.0.snapshot = None;
-        q.0.offset = 0;
+        q.0.offset = first_page_offset();
         q
     }
 
@@ -362,11 +385,15 @@ impl AdverseEventSearch {
     pub fn drug_role(&self) -> AdverseEventDrugRole {
         self.0.drug_role.unwrap_or(AdverseEventDrugRole::Any)
     }
-    /// Make the effective role explicit in a FAERS reply query.
+    /// Echo the effective FAERS role. Source and first-page defaults are already in the reply.
     pub fn with_reported_drug_role(&self) -> Self {
         let mut query = self.clone();
         if self.source() == AdverseEventSource::Faers {
             query.0.drug_role = Some(self.drug_role());
+            query.0.source = None;
+            if self.offset() == 0 {
+                query.0.offset = None;
+            }
         }
         query
     }
@@ -388,7 +415,7 @@ impl AdverseEventSearch {
     }
     /// Selected source.
     pub fn source(&self) -> AdverseEventSource {
-        self.0.source
+        self.0.source()
     }
     /// Reaction phrase.
     pub fn reaction(&self) -> Option<&Text> {
@@ -412,13 +439,13 @@ impl AdverseEventSearch {
     }
     /// Report offset.
     pub fn offset(&self) -> u32 {
-        self.0.offset
+        self.0.offset()
     }
 }
 impl crate::Paged for AdverseEventSearch {
     type Offset = u32;
     fn set_page_offset(&mut self, offset: Self::Offset) {
-        self.0.offset = offset;
+        self.0.offset = Some(offset);
     }
     fn clear_page_context(&mut self) {
         self.0.snapshot = None;

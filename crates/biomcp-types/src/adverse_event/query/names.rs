@@ -2,7 +2,7 @@
 use super::{AdverseEventSearch, AdverseEventSource, QueryInvalid, SearchFields, Text};
 
 pub(super) fn validate(fields: &SearchFields) -> Result<(), QueryInvalid> {
-    if fields.expand_drug_names && fields.source != AdverseEventSource::Faers {
+    if fields.expand_drug_names && fields.source() != AdverseEventSource::Faers {
         return Err(QueryInvalid::new(&["source", "expand_drug_names"]));
     }
     if fields.expand_drug_names && fields.exact_term {
@@ -15,7 +15,7 @@ pub(super) fn validate(fields: &SearchFields) -> Result<(), QueryInvalid> {
 }
 
 fn widens(fields: &SearchFields) -> bool {
-    fields.source == AdverseEventSource::Faers && !fields.exact_term
+    fields.source() == AdverseEventSource::Faers && !fields.exact_term
 }
 
 impl AdverseEventSearch {
