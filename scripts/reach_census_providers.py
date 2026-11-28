@@ -62,7 +62,7 @@ def ctgov(census):
 
 
 def cpic(census):
-    for table, order in (("pair", "pairid"), ("diplotype", "genesymbol,diplotype")):
+    for table, order in (("pair_view", "pairid"), ("diplotype", "genesymbol,diplotype")):
         def fetch(offset):
             body, headers = census.native(
                 f"{CPIC}/{table}", {"limit": 1, "offset": offset, "order": order},

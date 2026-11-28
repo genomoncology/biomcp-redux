@@ -1,4 +1,31 @@
 {
+  "clinvar": {
+    "review status/criteria provided, conflicting classifications": [8, 8],
+    "review status/criteria provided, multiple submitters, no conflicts": [8, 8],
+    "review status/criteria provided, single submitter": [8, 8],
+    "review status/no assertion criteria provided": [8, 8],
+    "review status/no classification for the individual variant": [0, 0],
+    "review status/no classification provided": [8, 8],
+    "review status/practice guideline": [8, 8],
+    "review status/reviewed by expert panel": [8, 8],
+    "variation type/Variation": [8, 8],
+    "variation type/complex": [8, 8],
+    "variation type/copy number gain": [8, 8],
+    "variation type/copy number loss": [8, 8],
+    "variation type/deletion": [8, 8],
+    "variation type/diplotype": [8, 8],
+    "variation type/duplication": [8, 8],
+    "variation type/fusion": [5, 5],
+    "variation type/haplotype": [0, 0],
+    "variation type/indel": [8, 8],
+    "variation type/insertion": [8, 8],
+    "variation type/inversion": [8, 8],
+    "variation type/microsatellite": [8, 8],
+    "variation type/protein only": [8, 8],
+    "variation type/single nucleotide variant": [8, 8],
+    "variation type/tandem duplication": [1, 1],
+    "variation type/translocation": [8, 8]
+  },
   "ctgov": {
     "InterventionType/BEHAVIORAL": [8, 8],
     "InterventionType/BIOLOGICAL": [8, 8],
@@ -58,6 +85,17 @@
   "interpro": {
     "interpro": [8, 8],
     "unintegrated": [2, 8]
+  },
+  "mychem": {
+    "approved-antibody": [7, 8],
+    "approved-protein": [8, 8],
+    "approved-small-molecule": [7, 8],
+    "natural-product": [8, 8],
+    "phase-0.5": [8, 8],
+    "phase-1": [8, 8],
+    "phase-2": [7, 8],
+    "phase-3": [7, 8],
+    "withdrawn": [7, 8]
   },
   "opentargets": {
     "acetate": [8, 8],
