@@ -1,0 +1,98 @@
+{
+  "feature": "article-litvar",
+  "live_check": "public LitVar autocomplete and publication lists, with public PubMed summaries and the EGFR row from the recorded HGNC table",
+  "story": "An EGFR deletion either resolves to one LitVar record or gives the caller a way to select a source candidate.",
+  "replay": "article/litvar/egfr-deletion",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "article",
+        "--source",
+        "litvar",
+        "--gene",
+        "EGFR",
+        "--no-access-lookup",
+        "--limit",
+        "1",
+        "--variant",
+        "p.E746_A750del"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items": {
+          "count": 0
+        },
+        "/next/0/kind": "disambiguate"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--source",
+        "litvar",
+        "--gene",
+        "EGFR",
+        "--no-access-lookup",
+        "--limit",
+        "1",
+        "--variant",
+        "c.2235_2249del"
+      ],
+      "expect": {
+        "/status": "partial",
+        "/result/items": {
+          "count": 0
+        },
+        "/result/candidates": {
+          "count": 3
+        },
+        "/result/candidates/0/rsid": "rs121913421",
+        "/result/candidates/0/count": 76,
+        "/result/candidates/2/name": "c.2235_2249del",
+        "/result/candidates/2/count": 56,
+        "/next/*/kind": {
+          "count": 3
+        },
+        "/next/0/args/*": {
+          "includes": "litvar@rs121913421##"
+        },
+        "/next/1/args/*": {
+          "includes": "litvar@#1956#c.2235_2249del15"
+        },
+        "/next/2/args/*": {
+          "includes": "litvar@#1956#c.2235_2249del"
+        }
+      }
+    },
+    {
+      "follow": "disambiguate",
+      "expect": {
+        "/status": "complete",
+        "/page/total": 76,
+        "/result/items/0/pmid": "27397505"
+      }
+    },
+    {
+      "run": [
+        "search",
+        "article",
+        "--source",
+        "litvar",
+        "--gene",
+        "EGFR",
+        "--no-access-lookup",
+        "--limit",
+        "1",
+        "--variant",
+        "c.2235_2249del15"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 64,
+        "/result/items/0/pmid": "41327362"
+      }
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 # 1220 — litvar-variant-without-rsid
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: cbe3fe63d4dfe489d3298f333e624beb88f4b375
 
 Milestone: 10
 

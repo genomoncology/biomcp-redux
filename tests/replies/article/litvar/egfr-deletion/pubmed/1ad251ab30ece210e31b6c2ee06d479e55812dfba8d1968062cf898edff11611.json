@@ -1,0 +1,343 @@
+{
+  "method": "POST",
+  "source": "pubmed",
+  "url": "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+  "post": {
+    "request_content_type": "application/x-www-form-urlencoded",
+    "request_body_sha256": "9f6e5dbd487630486a08b523914ebf7006227ad8f03edb495e52e962d5ddad1c"
+  },
+  "exchanges": [
+    {
+      "fetched": 1795825305,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "header": {
+            "type": "esummary",
+            "version": "0.3"
+          },
+          "result": {
+            "uids": [
+              "27397505"
+            ],
+            "27397505": {
+              "uid": "27397505",
+              "pubdate": "2016 Jul 28",
+              "epubdate": "2016 Jul 7",
+              "source": "Cell",
+              "authors": [
+                {
+                  "name": "Iorio F",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Knijnenburg TA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Vis DJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Bignell GR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Menden MP",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Schubert M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Aben N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gon\u00e7alves E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Barthorpe S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lightfoot H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Cokelaer T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Greninger P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "van Dyk E",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Chang H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "de Silva H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Heyn H",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Deng X",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Egan RK",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Liu Q",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mironenko T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Mitropoulos X",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Richardson L",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wang J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Zhang T",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Moran S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Sayols S",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Soleimani M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Tamborero D",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Lopez-Bigas N",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Ross-Macdonald P",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Esteller M",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Gray NS",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Haber DA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Stratton MR",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Benes CH",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Wessels LFA",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Saez-Rodriguez J",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "McDermott U",
+                  "authtype": "Author",
+                  "clusterid": ""
+                },
+                {
+                  "name": "Garnett MJ",
+                  "authtype": "Author",
+                  "clusterid": ""
+                }
+              ],
+              "lastauthor": "Garnett MJ",
+              "title": "A Landscape of Pharmacogenomic Interactions in Cancer.",
+              "sorttitle": "landscape of pharmacogenomic interactions in cancer",
+              "volume": "166",
+              "issue": "3",
+              "pages": "740-754",
+              "lang": [
+                "eng"
+              ],
+              "nlmuniqueid": "0413066",
+              "issn": "0092-8674",
+              "essn": "1097-4172",
+              "pubtype": [
+                "Journal Article",
+                "Research Support, N.I.H., Extramural",
+                "Research Support, Non-U.S. Gov't"
+              ],
+              "recordstatus": "PubMed - indexed for MEDLINE",
+              "pubstatus": "256",
+              "articleids": [
+                {
+                  "idtype": "pubmed",
+                  "idtypen": 1,
+                  "value": "27397505"
+                },
+                {
+                  "idtype": "pmc",
+                  "idtypen": 8,
+                  "value": "PMC4967469"
+                },
+                {
+                  "idtype": "pmcid",
+                  "idtypen": 5,
+                  "value": "pmc-id: PMC4967469;"
+                },
+                {
+                  "idtype": "doi",
+                  "idtypen": 3,
+                  "value": "10.1016/j.cell.2016.06.017"
+                },
+                {
+                  "idtype": "pii",
+                  "idtypen": 4,
+                  "value": "S0092-8674(16)30746-2"
+                }
+              ],
+              "history": [
+                {
+                  "pubstatus": "received",
+                  "date": "2015/08/07 00:00"
+                },
+                {
+                  "pubstatus": "revised",
+                  "date": "2015/12/23 00:00"
+                },
+                {
+                  "pubstatus": "accepted",
+                  "date": "2016/06/03 00:00"
+                },
+                {
+                  "pubstatus": "entrez",
+                  "date": "2016/07/12 06:00"
+                },
+                {
+                  "pubstatus": "pubmed",
+                  "date": "2016/07/12 06:00"
+                },
+                {
+                  "pubstatus": "medline",
+                  "date": "2016/12/15 06:00"
+                },
+                {
+                  "pubstatus": "pmc-release",
+                  "date": "2016/07/28 00:00"
+                }
+              ],
+              "references": [
+                {
+                  "refsource": "Cell. 2016 Jul 28;166(3):536-537. doi: 10.1016/j.cell.2016.07.010.",
+                  "reftype": "Comment in",
+                  "pmid": 27471963,
+                  "note": ""
+                }
+              ],
+              "attributes": [
+                "Has Abstract"
+              ],
+              "pmcrefcount": 34,
+              "fulljournalname": "Cell",
+              "elocationid": "doi: 10.1016/j.cell.2016.06.017",
+              "doctype": "citation",
+              "srccontriblist": [],
+              "booktitle": "",
+              "medium": "",
+              "edition": "",
+              "publisherlocation": "",
+              "publishername": "",
+              "srcdate": "",
+              "reportnumber": "",
+              "availablefromurl": "",
+              "locationlabel": "",
+              "doccontriblist": [],
+              "docdate": "",
+              "bookname": "",
+              "chapter": "",
+              "sortpubdate": "2016/07/28 00:00",
+              "sortfirstauthor": "Iorio F",
+              "vernaculartitle": ""
+            }
+          }
+        }
+      }
+    }
+  ]
+}

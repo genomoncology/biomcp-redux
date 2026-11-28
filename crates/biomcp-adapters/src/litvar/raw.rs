@@ -1,8 +1,8 @@
 //! Admit native candidate and publication identities without discarding optional labels.
 use crate::{Mapped, mapped::Problems, raw::Field};
 use biodata::Text;
-use biomcp_fetch::{BadReply, PathSegment, Reply};
-use biomcp_types::Source;
+use biomcp_fetch::{BadReply, Reply};
+use biomcp_types::{LitVarCandidate, Source};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -16,16 +16,12 @@ struct Candidate {
     name: Option<Field<crate::native_text::NativeText>>,
     pmids_count: Option<Field<u64>>,
 }
-impl Candidate {
-    fn admitted(&self) -> bool {
-        PathSegment::new(&self.id).is_ok()
-    }
-}
 impl Candidates {
     pub(super) fn eligible(&self) -> bool {
-        self.0
-            .iter()
-            .all(|row| row.as_ref().is_some_and(Candidate::admitted))
+        self.0.iter().all(|row| {
+            row.as_ref()
+                .is_some_and(|row| super::checked_id(&row.id).is_ok())
+        })
     }
     pub(super) fn mapped(self) -> Mapped<Vec<super::Candidate>> {
         let mut problems = Problems {
@@ -42,26 +38,27 @@ impl Candidates {
                 continue;
             };
             problems.record = crate::mapped::record(&row.id);
-            if !row.admitted() {
+            let Some(id) = problems.optional("identity", Some(super::checked_id(&row.id))) else {
                 refusals = crate::Refusal::Refused;
-                problems.required::<()>("identity", None);
                 continue;
-            }
+            };
             value.push(super::Candidate {
-                id: row.id,
-                rsid: problems.field("rsid", row.rsid).and_then(|value| {
-                    problems.optional(
-                        "rsid",
-                        Some(if super::is_rsid(value.as_str()) {
-                            Ok(value)
-                        } else {
-                            Err(BadReply)
-                        }),
-                    )
-                }),
-                gene: problems.fields("gene", row.gene).into_vec(),
-                name: problems.source_field("name", row.name),
-                pmids_count: problems.field("pmids_count", row.pmids_count),
+                id,
+                details: LitVarCandidate {
+                    rsid: problems.field("rsid", row.rsid).and_then(|value| {
+                        problems.optional(
+                            "rsid",
+                            Some(if super::is_rsid(value.as_str()) {
+                                Ok(value)
+                            } else {
+                                Err(BadReply)
+                            }),
+                        )
+                    }),
+                    gene: problems.fields("gene", row.gene).into_vec(),
+                    name: problems.source_field("name", row.name),
+                    count: problems.field("pmids_count", row.pmids_count),
+                },
             });
         }
         Mapped {

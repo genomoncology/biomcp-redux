@@ -238,7 +238,11 @@ pub(crate) fn unsupported(
     if query.sources().contains(&S::Litvar) {
         let variant = query.variant().map_or("", Text::as_str);
         let rsid = biomcp_adapters::litvar::is_rsid(variant);
-        if variant.is_empty() || (!rsid && query.gene().is_none()) {
+        let native_id = biomcp_adapters::litvar::is_native_id(variant);
+        if variant.is_empty()
+            || (!rsid && !native_id && query.gene().is_none())
+            || (native_id && query.sources() != [S::Litvar])
+        {
             return Some((biomcp_types::Source::LitVar, F::Variant));
         }
         if let Some(option) = query.rejects(&[

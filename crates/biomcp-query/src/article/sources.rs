@@ -454,23 +454,39 @@ fn prepare_litvar<'a>(
         Ok(litvar::Selection::Candidates(candidates)) => {
             out.sources
                 .push(status::source(Source::LitVar, leg.finish(), None));
-            status::search_for(out, &[Source::LitVar]);
+            status::item(out, true, false, true);
             if candidates.is_empty() {
                 super::empty_litvar::recover(query, out);
             }
-            for candidate in &candidates {
-                for variant in candidate.rsid.iter().chain(candidate.name.iter()) {
-                    if query.variant() == Some(variant) {
-                        continue;
-                    }
+            if let Some(source) = out.sources.last_mut() {
+                let message = if candidates.is_empty() {
+                    "LitVar autocomplete found no selectable variant."
+                } else {
+                    "LitVar autocomplete could not identify a single variant. Select a candidate to search its publications."
+                };
+                source
+                    .notices
+                    .push(biomcp_types::SourceNotice::RequestGuidance {
+                        data_date: None,
+                        message: message.into(),
+                        retry_after_seconds: None,
+                    });
+            }
+            let candidates = candidates
+                .into_iter()
+                .map(|candidate| {
+                    let selected = query
+                        .with_source(ArticleSource::Litvar)
+                        .with_variant(candidate.id);
                     out.next.push(crate::next::Step::run(
                         biomcp_types::StepKind::Disambiguate,
-                        &super::next::search_sources(query),
-                        biomcp_types::Request::SearchArticle(query.with_variant(variant.clone())),
+                        &[Source::LitVar],
+                        biomcp_types::Request::SearchArticle(selected),
                         cx.fresh,
                     ));
-                }
-            }
+                    candidate.details
+                })
+                .collect();
             out.body = (biomcp_types::ArticlePage {
                 items: Box::default(),
                 candidates,
