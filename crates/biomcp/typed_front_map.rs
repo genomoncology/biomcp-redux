@@ -335,7 +335,7 @@ pub(crate) fn generate(
     for (source, example) in [
         (
             "clingen",
-            r#"disease get id="VPS13A-related neurodegenerative disease" section=gene-validity source=clingen source_title_prefix=true"#,
+            r#"disease get id="VPS13A-related" section=gene-validity source=clingen source_title_prefix=true"#,
         ),
         (
             "openfda-label",

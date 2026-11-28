@@ -18,7 +18,7 @@ steps:
     expect:
       "":
         includes_all_of:
-          - 'get disease "VPS13A-related neurodegenerative disease" gene-validity --source clingen --source-title-prefix'
+          - 'get disease "VPS13A-related" gene-validity --source clingen --source-title-prefix'
           - 'disease equivalence'
   - run: [--format, md, help, diagnostic]
     expect:
@@ -36,7 +36,7 @@ steps:
         includes_all_of:
           - '--mechanism-of-action "Janus kinase" --limit 3 --fields name,application_numbers,matched_sentence'
           - '--drug-application NDA219042'
-          - 'get disease "VPS13A-related neurodegenerative disease" gene-validity --source clingen --source-title-prefix'
+          - 'get disease "VPS13A-related" gene-validity --source clingen --source-title-prefix'
           - 'article text 28944238'
           - 'get article 28944238 text'
           - '--section-only'

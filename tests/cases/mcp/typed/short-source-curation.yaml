@@ -4,7 +4,7 @@ live_check: Recorded ClinGen export replay.
 replay: reach/clingen
 config: {mcp_tool_mode: typed, mcp_typed_output_schema: true}
 steps:
-  - run: [get, disease, VPS13A-related neurodegenerative disease, gene-validity, --source, clingen, --source-title-prefix, --limit, '2']
+  - run: [get, disease, VPS13A-related, gene-validity, --source, clingen, --source-title-prefix, --limit, '2']
     expect: &assertions
       /status: complete
       /page/returned: 1
@@ -15,5 +15,5 @@ steps:
       name: disease
       arguments:
         action: get
-        get: {id: VPS13A-related neurodegenerative disease, section: gene-validity, source: clingen, source_title_prefix: true, section_limit: 2}
+        get: {id: VPS13A-related, section: gene-validity, source: clingen, source_title_prefix: true, section_limit: 2}
     expect: *assertions
