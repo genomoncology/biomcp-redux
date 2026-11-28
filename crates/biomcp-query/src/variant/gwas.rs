@@ -16,10 +16,7 @@ pub(super) fn section(
 ) -> super::sections::Result<VariantGwas> {
     let Some(id) = rs_id(query, candidates) else {
         return (
-            Section::Unavailable {
-                source: Source::Gwas,
-                reason: Reason::NoJoinId,
-            },
+            Section::unavailable(Source::Gwas, Reason::NoJoinId),
             Vec::new(),
             vec![Problem {
                 source: Source::Gwas,
@@ -57,8 +54,7 @@ pub(super) fn section(
             });
             dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
             problems.extend(page.problems);
-            let rows = page.rows.into_iter().collect::<Vec<_>>();
-            let returned = rows.len() as u32;
+            let returned = page.rows.len() as u32;
             let continuation = continuation(
                 query,
                 &id,
@@ -71,7 +67,8 @@ pub(super) fn section(
                 data: VariantGwas {
                     rs_id: id,
                     total: page.total,
-                    associations: rows
+                    associations: page
+                        .rows
                         .into_iter()
                         .map(|row| crate::gwas::map::association(row, &mut problems))
                         .collect(),
