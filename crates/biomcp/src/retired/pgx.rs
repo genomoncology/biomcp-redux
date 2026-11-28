@@ -7,6 +7,7 @@ struct Words<'a> {
     section: Option<&'a str>,
     annotation_id: bool,
     gene: bool,
+    drug: bool,
     shared: Option<ErrorMessage>,
 }
 pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMessage> {
@@ -35,6 +36,9 @@ pub(super) fn message(root: &clap::Command, args: &[OsString]) -> Option<ErrorMe
         }
         if pgx && flag == "--gene" {
             words.gene = true;
+        }
+        if pgx && flag == "--drug" {
+            words.drug = true;
         }
         if pgx && flag == "--annotation-id" {
             words.annotation_id = true;
@@ -84,6 +88,11 @@ fn guidance(words: Words<'_>) -> Option<ErrorMessage> {
             rest.first().copied()
         }
     });
+    if words.drug
+        && (verb == "search" && words.gene || verb == "get" && section != Some("annotations"))
+    {
+        return Some(ErrorMessage::PgxText);
+    }
     match section {
         Some("interactions") => return Some(ErrorMessage::PgxInteractions),
         Some("frequencies") => return Some(ErrorMessage::PgxFrequencies),

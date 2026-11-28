@@ -31,7 +31,8 @@ const PGX_GET: &str = "pharmacogenomic guidance and annotations";
 pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     (
         "gene",
-        "Human gene function, symbols, aliases, location, disease links, constraint, expression, pathways and protein",
+        "Human genes: what a gene is and does, its symbol, aliases and location, and its \
+         disease links, constraint, expression, pathways and protein",
         &[
             ("search", "search_gene", ""),
             ("get", "get_gene", ""),
@@ -218,7 +219,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "adverse_event",
-        "Regulatory reports of drug side effects, device problems and vaccine reactions, with reaction counts",
+        "Safety reports: drug side effects, medical device problems and vaccine reactions \
+         reported to regulators, with counts by reaction",
         &[
             ("search", "search_adverse_event", ""),
             ("get", "get_adverse_event", ""),
@@ -242,7 +244,8 @@ pub(crate) const ENTITY_TOOLS: &[EntityTool] = &[
     ),
     (
         "cell_line",
-        "Research cell lines by name, disease, gene or mutation, with identity, origin, variants and cross-references",
+        "Research cell lines: find one by name, disease, gene or mutation; read its \
+         identity, origin, variants and cross-references",
         &[
             ("search", "search_cell_line", ""),
             ("get", "get_cell_line", ""),
