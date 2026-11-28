@@ -3,8 +3,8 @@ use crate::Outcome;
 use crate::next::run;
 use biomcp_types::Paged;
 use biomcp_types::{
-    PgxAnnotations, PgxDiscovery, PgxGet, PgxPageInfo, PgxRecommendations, PgxSearch, PgxSection, PgxSource, ReplyData,
-    Request, SourceState, Status, StepKind,
+    PgxAnnotations, PgxDiscovery, PgxGet, PgxPageInfo, PgxRecommendations, PgxSearch, PgxSection,
+    PgxSource, ReplyData, Request, SourceState, Status, StepKind,
 };
 fn gene_query(
     gene: &biodata::GeneSymbol,
@@ -106,7 +106,9 @@ fn success_steps(
         }
         (
             Request::SearchPgx(q),
-            ReplyData::PgxDiscovery { body: Some(body), .. },
+            ReplyData::PgxDiscovery {
+                body: Some(body), ..
+            },
         ) => match body {
             PgxDiscovery::Pairs { page, .. } => search_page(q, page, native_consumed, next),
             PgxDiscovery::Clinical { page, items, .. } => {

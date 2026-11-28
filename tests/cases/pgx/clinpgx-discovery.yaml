@@ -2,6 +2,7 @@ feature: clinpgx-annotations
 story: Find a gene-less clinical annotation by rsID or drug and narrow gene annotations before paging.
 live_check: Authored replay rows, with the gene-less accession from the source reach census.
 replay: pgx/clinpgx-discovery
+config: {mcp_tool_mode: typed}
 steps:
   - run: [search, pgx, --variant, rs12777823, --source, clinpgx]
     expect:
@@ -19,7 +20,11 @@ steps:
       /result/page/returned: 1
       /result/items/0/accessionId: PA166134655
       /next/0/args: {includes_all_of: [--drug, warfarin, --offset]}
-  - run: [search, pgx, --drug, warfarin, --source, clinpgx, --limit, '1', --offset, '1']
+  - mcp_call:
+      name: gene
+      arguments:
+        action: pgx
+        pgx: {drug: warfarin, source: clinpgx, limit: 1, offset: 1}
     expect:
       /status: complete
       /result/page/total: 4

@@ -36,7 +36,10 @@ fn collection<T: serde::de::DeserializeOwned + NativeRow>(
     let body: Native<Vec<Field<T>>> = leg
         .call(
             &endpoint,
-            Input::Params(&[(selector.0, Arg::Text(selector.1)), ("view", Arg::Text("min"))]),
+            Input::Params(&[
+                (selector.0, Arg::Text(selector.1)),
+                ("view", Arg::Text("min")),
+            ]),
             Read::json().check(&|_| Ok(())).cache_if(&|_| true),
         )?
         .value;
@@ -100,7 +103,10 @@ pub fn clinical(
     )?;
     rows.value.retain(|row| {
         q.level().is_none_or(|level| {
-            row.level_of_evidence.as_ref().and_then(|e| e.term.as_deref()) == Some(level.as_str())
+            row.level_of_evidence
+                .as_ref()
+                .and_then(|e| e.term.as_deref())
+                == Some(level.as_str())
         }) && q.drug().is_none_or(|drug| matches_drug(row, drug.as_str()))
     });
     Ok(rows)
@@ -117,15 +123,26 @@ pub fn search(
             leg,
             super::CLINICAL_PATH,
             ("location.fingerprint", &rsid),
-            |row| matches_variant(row, &rsid).then_some(()).ok_or("location.variant"),
+            |row| {
+                matches_variant(row, &rsid)
+                    .then_some(())
+                    .ok_or("location.variant")
+            },
         );
     }
-    let drug = q.drug().ok_or(biomcp_fetch::InputError::Serialization)?.as_str();
+    let drug = q
+        .drug()
+        .ok_or(biomcp_fetch::InputError::Serialization)?
+        .as_str();
     collection::<super::annotation_raw::PgxAnnotationHeader>(
         leg,
         super::CLINICAL_PATH,
         ("relatedChemicals.name", drug),
-        |row| matches_drug(row, drug).then_some(()).ok_or("relatedChemicals"),
+        |row| {
+            matches_drug(row, drug)
+                .then_some(())
+                .ok_or("relatedChemicals")
+        },
     )
 }
 
@@ -134,8 +151,14 @@ fn matches_variant(row: &PgxAnnotationHeader, rsid: &str) -> bool {
         [
             location.rsid.as_deref(),
             location.display_name.as_deref(),
-            location.variant.as_ref().and_then(|variant| variant.symbol.as_deref()),
-            location.variant.as_ref().and_then(|variant| variant.name.as_deref()),
+            location
+                .variant
+                .as_ref()
+                .and_then(|variant| variant.symbol.as_deref()),
+            location
+                .variant
+                .as_ref()
+                .and_then(|variant| variant.name.as_deref()),
         ]
         .into_iter()
         .flatten()
@@ -145,7 +168,10 @@ fn matches_variant(row: &PgxAnnotationHeader, rsid: &str) -> bool {
 
 fn matches_drug(row: &PgxAnnotationHeader, drug: &str) -> bool {
     row.related_chemicals.iter().any(|chemical| {
-        chemical.name.as_deref().is_some_and(|name| name.eq_ignore_ascii_case(drug))
+        chemical
+            .name
+            .as_deref()
+            .is_some_and(|name| name.eq_ignore_ascii_case(drug))
     })
 }
 /// Reference collections remain independent; neither supplies full guidance.

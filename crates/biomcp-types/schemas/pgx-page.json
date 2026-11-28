@@ -145,6 +145,48 @@
       ],
       "type": "object"
     },
+    "Reply_PgxGeneSearch": {
+      "description": "Query echoed by the gene-keyed CPIC pair reply.",
+      "properties": {
+        "cpic_level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "gene": {
+          "$ref": "#/$defs/Reply_GeneSymbol"
+        },
+        "limit": {
+          "default": 5,
+          "format": "uint32",
+          "maximum": 100,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "format": "uint32",
+          "minimum": 0,
+          "type": "integer"
+        },
+        "source": {
+          "enum": [
+            "cpic"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "gene",
+        "source"
+      ],
+      "type": "object"
+    },
     "Reply_PgxHeader": {
       "description": "Source and declared gene context; no chosen pair or patient result.",
       "properties": {
@@ -168,7 +210,7 @@
       "properties": {
         "header": {
           "$ref": "#/$defs/Reply_PgxHeader",
-          "description": "Source and selected gene."
+          "description": "Source and selected context."
         },
         "items": {
           "default": [],
@@ -316,53 +358,6 @@
       "required": [
         "pairid",
         "genesymbol"
-      ],
-      "type": "object"
-    },
-    "Reply_PgxSearch": {
-      "description": "Checked gene-keyed CPIC pair search. No phenotype, phase or dose is calculated.",
-      "properties": {
-        "cpic_level": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/Reply_Text"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "Literal native level, including compound levels such as B/C."
-        },
-        "gene": {
-          "$ref": "#/$defs/Reply_GeneSymbol",
-          "description": "Explicit source gene symbol."
-        },
-        "limit": {
-          "default": 5,
-          "description": "Rows per native page.",
-          "format": "uint32",
-          "maximum": 100,
-          "minimum": 1,
-          "type": "integer"
-        },
-        "offset": {
-          "default": 0,
-          "description": "Source offset.",
-          "format": "uint32",
-          "minimum": 0,
-          "type": "integer"
-        },
-        "source": {
-          "description": "Required CPIC source; ClinPGx is not supported for search.",
-          "enum": [
-            "cpic"
-          ],
-          "type": "string"
-        }
-      },
-      "required": [
-        "gene",
-        "source"
       ],
       "type": "object"
     },
@@ -1141,7 +1136,7 @@
       "type": "array"
     },
     "query": {
-      "$ref": "#/$defs/Reply_PgxSearch",
+      "$ref": "#/$defs/Reply_PgxGeneSearch",
       "description": "Parsed query."
     },
     "result": {

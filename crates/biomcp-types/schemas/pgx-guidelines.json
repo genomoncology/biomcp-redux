@@ -137,6 +137,18 @@
       "pattern": "[^\\x09-\\x0d\\x20\\x85\\xa0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000]",
       "type": "string"
     },
+    "Reply_PgxEvidenceLevel": {
+      "description": "ClinPGx clinical annotation evidence level.",
+      "enum": [
+        "1A",
+        "1B",
+        "2A",
+        "2B",
+        "3",
+        "4"
+      ],
+      "type": "string"
+    },
     "Reply_PgxGet": {
       "description": "PGx card or section. No phenotype, phase or dose is calculated.",
       "properties": {
@@ -151,6 +163,18 @@
           ],
           "description": "Unchanged declared expression required for the diplotype section only.",
           "x-required-component": "cpic"
+        },
+        "drug": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_Text"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Drug name for ClinPGx clinical annotations.",
+          "x-required-component": "clinpgx"
         },
         "drug_id": {
           "anyOf": [
@@ -178,6 +202,18 @@
             }
           ],
           "description": "One ClinPGx collection; clinical is the default only on annotations.",
+          "x-required-component": "clinpgx"
+        },
+        "level": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reply_PgxEvidenceLevel"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Evidence level for ClinPGx clinical annotations.",
           "x-required-component": "clinpgx"
         },
         "phenotype": {
@@ -302,7 +338,7 @@
       "properties": {
         "header": {
           "$ref": "#/$defs/Reply_PgxHeader",
-          "description": "Source and selected gene."
+          "description": "Source and selected context."
         },
         "items": {
           "default": [],

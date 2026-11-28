@@ -76,7 +76,14 @@ impl TryFrom<SearchFields> for PgxSearch {
                 return Err(QueryInvalid::new(&["variant", "source"]));
             }
             PgxSource::Clinpgx if v.gene.is_some() || v.cpic_level.is_some() => {
-                return Err(QueryInvalid::new(&[if v.gene.is_some() { "gene" } else { "cpic_level" }, "source"]));
+                return Err(QueryInvalid::new(&[
+                    if v.gene.is_some() {
+                        "gene"
+                    } else {
+                        "cpic_level"
+                    },
+                    "source",
+                ]));
             }
             _ => {}
         }
@@ -258,10 +265,16 @@ impl TryFrom<GetFields> for PgxGet {
         if v.kind.is_some() && !annotations {
             return Err(QueryInvalid::new(&["kind", "section"]));
         }
-        if (!annotations || v.kind.is_some_and(|kind| kind != PgxAnnotationKind::Clinical))
+        if (!annotations
+            || v.kind
+                .is_some_and(|kind| kind != PgxAnnotationKind::Clinical))
             && (v.level.is_some() || v.drug.is_some())
         {
-            return Err(QueryInvalid::new(&[if v.level.is_some() { "level" } else { "drug" }, "section", "kind"]));
+            return Err(QueryInvalid::new(&[
+                if v.level.is_some() { "level" } else { "drug" },
+                "section",
+                "kind",
+            ]));
         }
         if v.snapshot.is_some() && !annotations {
             return Err(QueryInvalid::new(&["snapshot", "section"]));

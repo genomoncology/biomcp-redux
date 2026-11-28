@@ -42,12 +42,21 @@ fn pairs(leg: Leg<'_>, query: &PgxSearch) -> (Outcome, u32) {
         let items = items.into();
         if let Some((symbol, context)) = &gene {
             PgxPage {
-                header: PgxHeader { gene: (*symbol).clone(), source: query.source() },
+                header: PgxHeader {
+                    gene: (*symbol).clone(),
+                    source: query.source(),
+                },
                 page,
                 items,
-            }.with_query(context.clone())
+            }
+            .with_query(context.clone())
         } else {
-            PgxDiscovery::Pairs { header: header.clone(), page, items }.with_query(query.clone())
+            PgxDiscovery::Pairs {
+                header: header.clone(),
+                page,
+                items,
+            }
+            .with_query(query.clone())
         }
     };
     let mut consumed = 0;
@@ -70,8 +79,12 @@ fn clinical(leg: Leg<'_>, query: &PgxSearch) -> (Outcome, u32) {
     let body = |items: Vec<_>, total| {
         let mut page = page_info(query.offset(), items.len(), total);
         page.total_kind = PgxTotalKind::Observed;
-        PgxDiscovery::Clinical { header: header.clone(), page, items: items.into() }
-            .with_query(query.clone())
+        PgxDiscovery::Clinical {
+            header: header.clone(),
+            page,
+            items: items.into(),
+        }
+        .with_query(query.clone())
     };
     let mut consumed = 0;
     let mut problems = Vec::new();
@@ -80,8 +93,12 @@ fn clinical(leg: Leg<'_>, query: &PgxSearch) -> (Outcome, u32) {
         refusals = rows.refusals;
         problems = rows.problems;
         let total = rows.value.len() as u64;
-        let items: Vec<_> = rows.value.into_iter()
-            .skip(query.offset() as usize).take(query.limit() as usize).collect();
+        let items: Vec<_> = rows
+            .value
+            .into_iter()
+            .skip(query.offset() as usize)
+            .take(query.limit() as usize)
+            .collect();
         consumed = items.len() as u32;
         body(items, total)
     });

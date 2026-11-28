@@ -70,7 +70,13 @@ macro_rules! collection {
         }
     };
 }
-collection!(PgxPage, PgxPair, PgxHeader, PgxGeneSearch, "biomcp.pgx-page/7");
+collection!(
+    PgxPage,
+    PgxPair,
+    PgxHeader,
+    PgxGeneSearch,
+    "biomcp.pgx-page/7"
+);
 /// Drug or variant evidence from the selected source.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "representation", rename_all = "kebab-case")]

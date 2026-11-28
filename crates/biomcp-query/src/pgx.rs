@@ -6,14 +6,14 @@ mod next;
 mod search;
 use crate::{Ctx, Outcome, status};
 pub(crate) use annotations::annotation;
-pub(crate) use search::search;
 use biomcp_adapters::cpic;
 use biomcp_fetch::{Leg, RequestError};
 use biomcp_types::{
-    PgxCard, PgxDiplotype, PgxGet, PgxGuidelines, PgxHeader, PgxPageInfo,
-    PgxRecommendations, PgxSection, PgxSource, PgxTotalKind, Problem, ProblemCode,
-    Reason, ReplyData, Request, Source, SourceOutcome, SourceState,
+    PgxCard, PgxDiplotype, PgxGet, PgxGuidelines, PgxHeader, PgxPageInfo, PgxRecommendations,
+    PgxSection, PgxSource, PgxTotalKind, Problem, ProblemCode, Reason, ReplyData, Request, Source,
+    SourceOutcome, SourceState,
 };
+pub(crate) use search::search;
 /// Read one explicit card or section with the same source policy on every path.
 pub(crate) fn get(cx: &Ctx<'_>, query: &PgxGet) -> Outcome {
     if query.source() == PgxSource::Clinpgx {

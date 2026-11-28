@@ -156,7 +156,9 @@ pub(super) fn pair_page(
             rows.iter().all(|r| {
                 query.gene().is_none_or(|gene| r.genesymbol == *gene)
                     && query.drug().is_none_or(|drug| {
-                        r.drugname.as_deref().is_some_and(|name| name.eq_ignore_ascii_case(drug.as_str()))
+                        r.drugname
+                            .as_deref()
+                            .is_some_and(|name| name.eq_ignore_ascii_case(drug.as_str()))
                     })
                     && query.cpic_level().is_none_or(|v| {
                         r.cpiclevel
