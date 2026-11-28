@@ -1,0 +1,105 @@
+"""Shared live census transport and sampling."""
+from dataclasses import dataclass
+import json
+import os
+from pathlib import Path
+import random
+import subprocess
+import time
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+from nightly_live_check import PASSED_ENVIRONMENT
+
+MAX_SOURCE_BYTES = 64 * 1024 * 1024
+SAMPLE_SIZE = 8
+
+
+@dataclass(frozen=True)
+class Measurement:
+    total: int
+    reached: int
+    sampled: int
+
+    def __post_init__(self):
+        if not 0 <= self.reached <= self.sampled <= self.total:
+            raise ValueError("inconsistent measurement")
+
+
+class Census:
+    def __init__(self, executable, home):
+        self.executable = executable
+        self.home = Path(home)
+        self.environment = {name: os.environ[name] for name in PASSED_ENVIRONMENT
+                            if name in os.environ}
+        self.environment.update(HOME=home, XDG_CACHE_HOME=home + "/cache",
+                                XDG_CONFIG_HOME=home + "/config")
+        self.last_call = None
+        self.recording = 0
+
+    def pace(self):
+        if self.last_call is not None:
+            remaining = 1 - (time.monotonic() - self.last_call)
+            if remaining > 0:
+                time.sleep(remaining)
+        self.last_call = time.monotonic()
+
+    def native(self, url, params, headers=None, payload=None):
+        self.pace()
+        request = Request(url + ("?" + urlencode(params) if params else ""),
+                          data=payload, headers=headers or {})
+        with urlopen(request, timeout=30) as response:
+            content = response.read(MAX_SOURCE_BYTES + 1)
+            if len(content) > MAX_SOURCE_BYTES:
+                raise ValueError("native reply exceeds the source capture bound")
+            return json.loads(content), response.headers
+
+    def reply(self, args, record=False, allow_usage=False):
+        self.pace()
+        command = [self.executable, "--format", "json"]
+        if record:
+            self.recording += 1
+            command += ["--record", str(self.home / f"recording-{self.recording}" if record is True else self.home / record)]
+        process = subprocess.run(command + list(args), env=self.environment,
+                                 capture_output=True, timeout=120, check=False)
+        reply = json.loads(process.stdout)
+        if process.returncode == 2 and not allow_usage:
+            raise ValueError("BioMCP rejected census arguments")
+        for source in reply.get("sources", []):
+            if source.get("reason") in {
+                "deadline-exceeded", "rate-limited", "unavailable", "transport",
+                "disabled", "offline", "no-key", "tls", "proxy", "local-quota",
+            }:
+                raise ValueError("BioMCP could not observe the source")
+        return reply
+
+
+def offsets(label, total, count=SAMPLE_SIZE):
+    return sorted(random.Random(label).sample(range(total), min(total, count)))
+
+
+def read(document, *path):
+    for key in path:
+        if not isinstance(document, dict):
+            return None
+        document = document.get(key)
+    return document
+
+
+def source_page(census, label, fetch, probe):
+    """Sample exact native offsets while checking that the reported total is stable."""
+    total, _ = fetch(0)
+    reached = 0
+    sample = offsets(label, total)
+    for offset in sample:
+        observed, row = fetch(offset)
+        if observed != total or row is None:
+            raise ValueError("native population changed during its sample")
+        reached += bool(probe(row))
+    return Measurement(total, reached, len(sample))
+
+
+def sample_rows(label, rows, probe, total=None):
+    sample = offsets(label, len(rows))
+    reached = sum(bool(probe(rows[index])) for index in sample)
+    return Measurement(len(rows) if total is None else total, reached, len(sample))
