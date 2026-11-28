@@ -4,7 +4,8 @@ use biodata::VariantId;
 use biomcp_adapters::gwas;
 use biomcp_fetch::Deadline;
 use biomcp_types::{
-    PageInfo, Problem, ProblemCode, Reason, Section, Source, VariantGet, VariantGwas, VariantHeader,
+    PageInfo, Problem, ProblemCode, Reason, Section, Source, SourceNotice, VariantGet, VariantGwas,
+    VariantHeader,
 };
 /// Ask only the current catalog and preserve source selection and paging.
 pub(super) fn section(
@@ -49,6 +50,11 @@ pub(super) fn section(
             record: source_record(&id),
         },
         Ok(page) => {
+            source.notices.push(SourceNotice::RequestGuidance {
+                data_date: None,
+                message: "Associations are ordered by ascending p-value.".into(),
+                retry_after_seconds: None,
+            });
             dropped |= page.refusals == biomcp_adapters::Refusal::Refused;
             problems.extend(page.problems);
             let rows = page.rows.into_iter().collect::<Vec<_>>();

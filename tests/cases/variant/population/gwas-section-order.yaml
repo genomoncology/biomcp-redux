@@ -1,0 +1,30 @@
+{
+  "feature": "variant-population",
+  "live_check": "public",
+  "story": "The variant GWAS section and GWAS search return the same first five associations in ascending p-value order.",
+  "replay": "variant-population/gwas-rs2981582-order",
+  "steps": [
+    {
+      "run": ["get", "variant", "rs2981582", "gwas", "--section-limit", "5"],
+      "expect": {
+        "/status": "complete",
+        "/sources/0/notices/0/message": "Associations are ordered by ascending p-value.",
+        "/result/candidates/0/sections/gwas/data/associations/*/id": [
+          "association:6110", "association:191182970", "association:217418586",
+          "association:191183954", "association:16551015"
+        ]
+      }
+    },
+    {
+      "run": ["search", "gwas", "--variant", "rs2981582", "--limit", "5"],
+      "expect": {
+        "/status": "complete",
+        "/query/query/order": "p_value,asc",
+        "/result/items/*/id": [
+          "association:6110", "association:191182970", "association:217418586",
+          "association:191183954", "association:16551015"
+        ]
+      }
+    }
+  ]
+}

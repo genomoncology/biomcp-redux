@@ -2,9 +2,6 @@
 use crate::gwas::{SPEC, scope::Selectors};
 use biomcp_types::GwasSearch;
 use std::collections::BTreeMap;
-pub(super) fn self_link(url: &str, expected: &BTreeMap<String, String>) -> bool {
-    resource_link(url, "associations", expected)
-}
 pub(in crate::gwas) fn resource_link(
     url: &str,
     resource: &str,

@@ -1,0 +1,305 @@
+{
+  "method": "GET",
+  "source": "gwas",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&page=0&rs_id=rs2981582&size=5&sort=p_value",
+  "exchanges": [
+    {
+      "fetched": 1795842303,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 0,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {
+          "_embedded": {
+            "associations": [
+              {
+                "association_id": 6110,
+                "risk_frequency": "0.38",
+                "pvalue_description": "",
+                "pvalue_mantissa": 2,
+                "pvalue_exponent": -76,
+                "multi_snp_haplotype": false,
+                "snp_interaction": false,
+                "range": "[1.23-1.30]",
+                "or_per_copy_num": 1.26,
+                "or_value": "1.26",
+                "beta": "-",
+                "p_value": 2e-76,
+                "efo_traits": [
+                  {
+                    "efo_id": "MONDO_0004989",
+                    "efo_trait": "breast carcinoma"
+                  }
+                ],
+                "reported_trait": [
+                  "Breast cancer"
+                ],
+                "accession_id": "GCST000035",
+                "locations": [
+                  "10:121592803"
+                ],
+                "mapped_genes": [
+                  "FGFR2"
+                ],
+                "bg_efo_traits": [],
+                "pubmed_id": "17529967",
+                "first_author": "Easton DF",
+                "ci_lower": 1.23,
+                "ci_upper": 1.3,
+                "snp_effect_allele": [
+                  "rs2981582-A"
+                ],
+                "snp_allele": [
+                  {
+                    "rs_id": "rs2981582",
+                    "effect_allele": "A"
+                  }
+                ],
+                "_links": {
+                  "self": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/6110"
+                  },
+                  "loci": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/6110/loci"
+                  },
+                  "snp": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs2981582"
+                  }
+                }
+              },
+              {
+                "association_id": 191182970,
+                "risk_frequency": "NR",
+                "pvalue_description": "",
+                "pvalue_mantissa": 2,
+                "pvalue_exponent": -73,
+                "multi_snp_haplotype": false,
+                "snp_interaction": false,
+                "range": "-",
+                "or_per_copy_num": 0.79,
+                "or_value": "0.79",
+                "beta": "-",
+                "p_value": 2e-73,
+                "efo_traits": [
+                  {
+                    "efo_id": "MONDO_0004989",
+                    "efo_trait": "breast carcinoma"
+                  }
+                ],
+                "reported_trait": [
+                  "Breast cancer"
+                ],
+                "accession_id": "GCST90651041",
+                "locations": [
+                  "10:121592803"
+                ],
+                "mapped_genes": [
+                  "FGFR2"
+                ],
+                "bg_efo_traits": [],
+                "pubmed_id": "37340002",
+                "first_author": "Sato G",
+                "snp_effect_allele": [
+                  "rs2981582-G"
+                ],
+                "snp_allele": [
+                  {
+                    "rs_id": "rs2981582",
+                    "effect_allele": "G"
+                  }
+                ],
+                "_links": {
+                  "self": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/191182970"
+                  },
+                  "loci": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/191182970/loci"
+                  },
+                  "snp": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs2981582"
+                  }
+                }
+              },
+              {
+                "association_id": 217418586,
+                "risk_frequency": "0.614",
+                "pvalue_description": "",
+                "pvalue_mantissa": 1,
+                "pvalue_exponent": -12,
+                "multi_snp_haplotype": false,
+                "snp_interaction": false,
+                "range": "[1.02-1.04]",
+                "or_per_copy_num": 1.03,
+                "or_value": "1.03",
+                "beta": "-",
+                "p_value": 1e-12,
+                "efo_traits": [
+                  {
+                    "efo_id": "MONDO_0004981",
+                    "efo_trait": "atrial fibrillation"
+                  }
+                ],
+                "reported_trait": [
+                  "Atrial fibrillation"
+                ],
+                "accession_id": "GCST90559230",
+                "locations": [
+                  "10:121592803"
+                ],
+                "mapped_genes": [
+                  "FGFR2"
+                ],
+                "bg_efo_traits": [],
+                "pubmed_id": "40050429",
+                "first_author": "Roselli C",
+                "ci_lower": 1.02,
+                "ci_upper": 1.04,
+                "snp_effect_allele": [
+                  "rs2981582-G"
+                ],
+                "snp_allele": [
+                  {
+                    "rs_id": "rs2981582",
+                    "effect_allele": "G"
+                  }
+                ],
+                "_links": {
+                  "self": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/217418586"
+                  },
+                  "loci": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/217418586/loci"
+                  },
+                  "snp": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs2981582"
+                  }
+                }
+              },
+              {
+                "association_id": 191183954,
+                "risk_frequency": "NR",
+                "pvalue_description": "",
+                "pvalue_mantissa": 2,
+                "pvalue_exponent": -10,
+                "multi_snp_haplotype": false,
+                "snp_interaction": false,
+                "range": "-",
+                "or_per_copy_num": 0.86,
+                "or_value": "0.86",
+                "beta": "-",
+                "p_value": 2e-10,
+                "efo_traits": [
+                  {
+                    "efo_id": "MONDO_0004989",
+                    "efo_trait": "breast carcinoma"
+                  }
+                ],
+                "reported_trait": [
+                  "Breast cancer"
+                ],
+                "accession_id": "GCST90651056",
+                "locations": [
+                  "10:121592803"
+                ],
+                "mapped_genes": [
+                  "FGFR2"
+                ],
+                "bg_efo_traits": [],
+                "pubmed_id": "37340002",
+                "first_author": "Sato G",
+                "snp_effect_allele": [
+                  "rs2981582-G"
+                ],
+                "snp_allele": [
+                  {
+                    "rs_id": "rs2981582",
+                    "effect_allele": "G"
+                  }
+                ],
+                "_links": {
+                  "self": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/191183954"
+                  },
+                  "loci": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/191183954/loci"
+                  },
+                  "snp": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs2981582"
+                  }
+                }
+              },
+              {
+                "association_id": 16551015,
+                "risk_frequency": "0.68",
+                "pvalue_description": "",
+                "pvalue_mantissa": 2,
+                "pvalue_exponent": -8,
+                "multi_snp_haplotype": false,
+                "snp_interaction": false,
+                "range": "[1.11-1.23]",
+                "or_per_copy_num": 1.18,
+                "or_value": "1.18",
+                "beta": "-",
+                "p_value": 2e-08,
+                "efo_traits": [
+                  {
+                    "efo_id": "MONDO_0004989",
+                    "efo_trait": "breast carcinoma"
+                  }
+                ],
+                "reported_trait": [
+                  "Breast cancer"
+                ],
+                "accession_id": "GCST003520",
+                "locations": [
+                  "10:121592803"
+                ],
+                "mapped_genes": [
+                  "FGFR2"
+                ],
+                "bg_efo_traits": [],
+                "pubmed_id": "27354352",
+                "first_author": "Han MR",
+                "ci_lower": 1.11,
+                "ci_upper": 1.23,
+                "snp_effect_allele": [
+                  "rs2981582-A"
+                ],
+                "snp_allele": [
+                  {
+                    "rs_id": "rs2981582",
+                    "effect_allele": "A"
+                  }
+                ],
+                "_links": {
+                  "self": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/16551015"
+                  },
+                  "loci": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations/16551015/loci"
+                  },
+                  "snp": {
+                    "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/single-nucleotide-polymorphisms/rs2981582"
+                  }
+                }
+              }
+            ]
+          },
+          "_links": {
+            "self": {
+              "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&rs_id=rs2981582&page=0&size=5&sort=p_value"
+            }
+          },
+          "page": {
+            "size": 5,
+            "totalElements": 5,
+            "totalPages": 1,
+            "number": 0
+          }
+        }
+      }
+    }
+  ]
+}

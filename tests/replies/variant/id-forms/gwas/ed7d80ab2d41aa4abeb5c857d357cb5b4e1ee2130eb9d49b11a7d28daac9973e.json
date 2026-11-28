@@ -1,7 +1,7 @@
 {
   "method": "GET",
   "source": "gwas",
-  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&page=0&rs_id=rs113488022&size=3&sort=p_value",
   "exchanges": [
     {
       "fetched": 1792871322,
@@ -14,7 +14,7 @@
         "value": {
           "_links": {
             "self": {
-              "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?rs_id=rs113488022&page=0&size=3"
+              "href": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?direction=asc&page=0&rs_id=rs113488022&size=3&sort=p_value"
             }
           },
           "page": {
