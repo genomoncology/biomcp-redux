@@ -104,8 +104,7 @@ pub(super) fn matched_therapies(
         format!(
             "CIViC lists {} therapies under this name, each with its own evidence and \
              assertions; this reply reads therapy {} only; get each alternative to read the others",
-            resolution.total,
-            body.identity.id
+            resolution.total, body.identity.id
         )
         .into(),
     );
