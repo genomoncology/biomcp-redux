@@ -113,12 +113,16 @@ pub(super) fn profile_refused(
         Ok(Some(id)) if id != selected => id,
         _ => return None,
     };
-    let value = biodata::Text::new(&id.to_string()).ok()?;
     let mut out = status::ready(biomcp_types::ReplyData::Usage(
         biomcp_types::UsageError::Arguments(biomcp_types::UsageArguments {
             argument: Some("--civic-profile".into()),
             message: Some(biomcp_types::ErrorMessage::ArgumentValue),
-            valid_values: Some(vec![value].into()),
+            // The refusal stands either way; a decimal ID is always valid text.
+            valid_values: Some(
+                biodata::Text::new(&id.to_string())
+                    .map(|value| vec![value].into())
+                    .unwrap_or_default(),
+            ),
             next: Vec::new(),
         }),
     ));
