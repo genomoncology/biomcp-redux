@@ -106,12 +106,11 @@ fn read(
         local: None,
     };
     if cx.fetch.disabled(Source::Gnomad) {
-        read.population = Section::unavailable(Source::Gnomad, Reason::Disabled);
-        return read;
+        return read.unavailable(Reason::Disabled);
     }
-    let Ok(identity) = query.identity() else {
-        read.population = Section::unavailable(Source::Gnomad, Reason::Rejected);
-        return read;
+    let identity = match query.identity() {
+        Ok(identity) => identity,
+        Err(_) => return read.unavailable(Reason::Rejected),
     };
     if super::population_scope::input_outside(identity.input()) {
         return read.outside_scope();
@@ -126,8 +125,7 @@ fn read(
         read.local = found.local;
         read.candidates = found.rows;
         if let Some(reason) = found.reason {
-            read.population = Section::unavailable(Source::Gnomad, reason);
-            return read;
+            return read.unavailable(reason);
         }
     }
     if super::population_scope::candidate_outside(&read.candidates) {
@@ -139,8 +137,7 @@ fn read(
     read.problems.extend(joined.problems);
     read.local = read.local.or(joined.local);
     if let Some(reason) = joined.reason {
-        read.population = Section::unavailable(Source::Gnomad, reason);
-        return read;
+        return read.unavailable(reason);
     }
     let Some(id) = joined.id else {
         if read.candidates.len() < 2 {
@@ -175,11 +172,15 @@ fn read(
 }
 
 impl PopulationRead {
+    fn unavailable(mut self, reason: Reason) -> Self {
+        self.population = Section::unavailable(Source::Gnomad, reason);
+        self
+    }
+
     fn outside_scope(mut self) -> Self {
-        self.population = Section::unavailable(Source::Gnomad, Reason::OutOfScope);
         self.sources.push(super::population_scope::skipped());
         self.candidates.clear();
-        self
+        self.unavailable(Reason::OutOfScope)
     }
 }
 fn choices(
