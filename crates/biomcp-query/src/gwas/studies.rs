@@ -1,15 +1,70 @@
-//! Explicit publication study results, preserving native sample descriptions.
+//! Study results, preserving native sample descriptions.
 use crate::{Ctx, Outcome, status};
-use biomcp_adapters::gwas;
-use biomcp_types::{GwasSearch, GwasStudyPage, PageInfo, Paged, ReplyBody, Source, StepKind};
+use biomcp_adapters::{Mapped, gwas};
+use biomcp_fetch::{Absent, Leg, LegReport, RequestError};
+use biomcp_types::{
+    GwasSearch, GwasStudy, GwasStudyPage, GwasStudyRow, PageInfo, Paged, ReplyBody, Source,
+    StepKind,
+};
 pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
-    let mut out = status::empty(GwasStudyPage::into_reply(q.clone(), None));
     let command = cx.fetch.command_deadline(cx.budget);
     let deadline = command.deadline();
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     let result = gwas::studies(&leg, q);
+    let out = finish(cx, q, result, leg.finish());
+    command.finish(deadline.remaining());
+    out
+}
+
+pub(super) fn find_unpublished(
+    leg: &Leg<'_>,
+    q: &GwasSearch,
+) -> Result<Option<Mapped<GwasStudy>>, RequestError> {
+    // An association filter cannot be evaluated against an unpublished study card.
+    if let Some(id) = q.study()
+        && q.variant().is_none()
+        && q.trait_label().is_none()
+        && q.trait_id().is_none()
+        && q.gene().is_none()
+        && q.pubmed().is_none()
+    {
+        return gwas::get::unpublished_study(leg, id).absent();
+    }
+    Ok(None)
+}
+
+pub(super) fn unpublished(
+    cx: &Ctx<'_>,
+    q: &GwasSearch,
+    study: Mapped<GwasStudy>,
+    report: LegReport,
+) -> Outcome {
+    let items = (q.offset() == 0)
+        .then_some(GwasStudyRow {
+            study: study.value,
+            association_count: Some(0),
+        })
+        .into_iter()
+        .collect();
+    let rows = gwas::Studies {
+        total: 1,
+        received: 1,
+        items,
+        refusals: study.refusals,
+        problems: study.problems,
+    };
+    finish(cx, q, Ok(rows), report)
+}
+
+fn finish(
+    cx: &Ctx<'_>,
+    q: &GwasSearch,
+    result: Result<gwas::Studies, RequestError>,
+    report: LegReport,
+) -> Outcome {
+    let mut out = status::empty(GwasStudyPage::into_reply(q.clone(), None));
     let error = result.as_ref().err().copied();
-    let mut source = status::source(Source::Gwas, leg.finish(), error);
+    let mut source = status::source(Source::Gwas, report, error);
     match result {
         Ok(rows) => {
             out.include_refusals(rows.refusals);
@@ -66,6 +121,5 @@ pub(super) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     }
     out.sources.push(source);
     status::search(&mut out);
-    command.finish(deadline.remaining());
     out
 }

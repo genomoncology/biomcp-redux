@@ -155,17 +155,8 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
             let study = gwas::get::study(leg, id)?;
             out.include_refusals(study.refusals);
             out.problems.extend(study.problems);
-            for section in [GwasStudySection::Associations, GwasStudySection::Ancestries] {
-                let q = GwasGet::Study {
-                    id: id.clone(),
-                    section: Some(section),
-                    page: GwasSectionPage::default(),
-                };
-                out.next.push(crate::next::Step::new(
-                    StepKind::Section,
-                    &[biomcp_types::Source::Gwas],
-                    action(q, false),
-                ));
+            if !study.value.unpublished {
+                study_sections(id, out);
             }
             out.body = (study.value).with_query(q.clone());
         }
@@ -182,6 +173,20 @@ fn resource(q: &GwasGet, leg: &Leg<'_>, out: &mut Outcome) -> Result<(), Request
         crate::status::item(out, true, false, false);
     }
     Ok(())
+}
+fn study_sections(id: &biodata::GwasStudyId, out: &mut Outcome) {
+    for section in [GwasStudySection::Associations, GwasStudySection::Ancestries] {
+        let q = GwasGet::Study {
+            id: id.clone(),
+            section: Some(section),
+            page: GwasSectionPage::default(),
+        };
+        out.next.push(crate::next::Step::new(
+            StepKind::Section,
+            &[Source::Gwas],
+            action(q, false),
+        ));
+    }
 }
 fn action(q: GwasGet, fresh: bool) -> Action {
     Action::Run {

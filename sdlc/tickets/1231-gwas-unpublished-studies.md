@@ -1,6 +1,7 @@
 # 1231 — gwas-unpublished-studies
 
-Status: OPEN.
+Status: COMPLETE.
+Landed: c33cdd30e5008ea152aabe4bbe186e4b93159724
 
 Milestone: 10
 

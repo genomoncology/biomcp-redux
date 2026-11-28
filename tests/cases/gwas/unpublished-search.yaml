@@ -1,0 +1,35 @@
+{
+  "feature": "gwas-search",
+  "story": "An exact study search returns unpublished metadata when the Catalog has no curated associations.",
+  "live_check": "GWAS Catalog unpublished study GCST91007236",
+  "replay": "gwas/unpublished",
+  "steps": [
+    {
+      "run": [
+        "search",
+        "gwas",
+        "--study",
+        "GCST91007236"
+      ],
+      "expect": {
+        "/status": "complete",
+        "/result/items/0/id": "GCST91007236",
+        "/result/items/0/unpublished": true,
+        "/result/items/0/reported_traits/0": "pulse pressure",
+        "/result/items/0/samples/0": {
+          "equals": {
+            "ancestry": "European",
+            "count": 242450
+          }
+        },
+        "/result/items/0/summary_statistics_url": "http://ftp.ebi.ac.uk/pub/databases/gwas/summary_statistics/GCST91007001-GCST91008000/GCST91007236",
+        "/result/items": {
+          "count": 1
+        },
+        "/page/total": 1,
+        "/result/items/0/association_count": 0
+      },
+      "max_bytes": 2600
+    }
+  ]
+}

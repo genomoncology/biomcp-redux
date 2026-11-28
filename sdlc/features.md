@@ -112,7 +112,7 @@ study-catalog: Explicit catalog sync preserves checked metadata atomically; lite
 study-get: Exact stored study cards expose bounded independent profile and sample-list metadata.
 study-rows: Read gene-filtered native mutation observations and sample ID/type rows with bounded pages, totals and the selected mutation profile.
 study-copy-number: Read cBioPortal's own amplification and deep-deletion sample counts for one gene in a study's discrete copy-number profile.
-gwas-search: Search publication studies with source traits, sample descriptions and association counts, or source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end.
+gwas-search: Search publication studies with source traits, sample descriptions and association counts, or source-native association selectors in native p-value order, with exact positive thresholds and retained page walks that state a qualifying total only at the end. An exact unpublished accession returns the study's metadata.
 protein-search: A caller searches reviewed human proteins and walks retained source windows without guessing identities.
 protein-identity: A caller reads a reviewed human protein card, follows a verified UniProt merge to its primary accession, or learns why an accession falls outside scope.
 phenotype-identity: A caller searches literal HP term candidates and reads independent exact HPO or Monarch cards without guessing or merging.
@@ -124,7 +124,7 @@ phenotype-ancestors: A caller asks whether one HP term sits under another in one
 pathway-wikipathways-genes: Page distinct HGNC genes from human WikiPathways GPML using exact gene-product references, with counts and disclosures for unmapped nodes.
 phenotype-associations: A caller pages exact direct Monarch disease and human gene association rows without clinical inference or identity repair.
 phenotype-set-ranking: A caller gives a set of HP IDs and reads Monarch's one ranked list of human genes or diseases, with each score, the metric named and Monarch's 50-row limit stated; a set holding an HP ID Monarch does not know is refused.
-gwas-get: Read exact Catalog association and study records and their independent native context sections.
+gwas-get: Read exact Catalog association and study records and their independent native context sections. Unpublished study cards identify their status and carry Catalog sample counts and the summary-statistics location.
 pathway-retirements: Retired pathway spellings return fixed supported routes before any source request.
 pathway-failures: Source faults and foreign identities retain failed or rejected outcomes without cache admission.
 study-retirements: Legacy study calculations, charts and local directories return fixed supported routes before source access.

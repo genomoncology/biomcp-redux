@@ -30,45 +30,27 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     let mut out = empty(q);
     let leg = cx.fetch.leg(&gwas::SPEC, deadline).fresh(cx.fresh);
     let result = gwas::search(&leg, q);
-    let error = result.as_ref().err().copied();
-    let counts = result
-        .as_ref()
-        .ok()
-        .map(|page| (page.rows.len() as u32, page.total));
-    if let Ok(page) = result {
-        out.include_refusals(page.refusals);
-        out.problems.extend(page.problems);
-        let items: Box<[_]> = page
-            .rows
-            .into_iter()
-            .map(|row| map::association(row, &mut out.problems))
-            .collect();
-        let returned = items.len() as u32;
-        let continuation =
-            (u64::from(q.offset() - q.offset() % q.limit()) + u64::from(page.received)
-                < page.total)
-                .then(|| {
-                    GwasPageQuery::Search(q.at_offset(
-                        (q.offset() - q.offset() % q.limit()).saturating_add(page.received),
-                    ))
-                });
-        let page = PageInfo {
-            offset: q.offset(),
-            returned,
-            total: page.total,
-            pool: None,
-            truncated: None,
-        };
-        out.page = Some(page.clone());
-        out.body = (GwasPage {
-            items,
-            page,
-            continuation,
-            qualifying_total: None,
-        })
-        .with_query(biomcp_types::GwasPageQuery::Search(q.clone()));
-        crate::status::item(&mut out, true, false, false);
-    }
+    let fallback = match &result {
+        Ok(page) if page.total == 0 => studies::find_unpublished(&leg, q),
+        _ => Ok(None),
+    };
+    let fallback_error = match fallback {
+        Ok(Some(study)) => {
+            let out = studies::unpublished(cx, q, study, leg.finish());
+            command.finish(deadline.remaining());
+            return out;
+        }
+        Ok(None) => None,
+        Err(error) => Some(error),
+    };
+    let (counts, error) = match result {
+        Ok(page) => {
+            let counts = (page.rows.len() as u32, page.total);
+            association_page(q, &mut out, page);
+            (Some(counts), fallback_error)
+        }
+        Err(error) => (None, Some(error)),
+    };
     let mut source = status::source(Source::Gwas, leg.finish(), error);
     if let Some((accepted, total)) = counts {
         source.retrieved_count = Some(accepted);
@@ -78,7 +60,11 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
         out.problems.push(Problem {
             source: Source::Gwas,
             record: None,
-            field: "association_page".into(),
+            field: if fallback_error.is_some() {
+                "unpublished_study".into()
+            } else {
+                "association_page".into()
+            },
             code: ProblemCode::ValueUnknown,
         });
     }
@@ -91,10 +77,42 @@ pub(crate) fn search(cx: &Ctx<'_>, q: &GwasSearch) -> Outcome {
     out.next = next::search(q, body.as_ref(), source.state, cx.fresh, &mut out.problems);
     out.sources.push(source);
     status::search(&mut out);
+    if fallback_error.is_some() {
+        status::item(&mut out, true, false, true);
+    }
     out.local = error.and_then(status::local);
     traits::resolve(cx, q, deadline, &mut out);
     command.finish(deadline.remaining());
     out
+}
+
+fn association_page(q: &GwasSearch, out: &mut Outcome, rows: gwas::Page) {
+    out.include_refusals(rows.refusals);
+    out.problems.extend(rows.problems);
+    let items: Box<[_]> = rows
+        .rows
+        .into_iter()
+        .map(|row| map::association(row, &mut out.problems))
+        .collect();
+    let start = q.offset() - q.offset() % q.limit();
+    let continuation = (u64::from(start) + u64::from(rows.received) < rows.total)
+        .then(|| GwasPageQuery::Search(q.at_offset(start.saturating_add(rows.received))));
+    let page = PageInfo {
+        offset: q.offset(),
+        returned: items.len() as u32,
+        total: rows.total,
+        pool: None,
+        truncated: None,
+    };
+    out.page = Some(page.clone());
+    out.body = (GwasPage {
+        items,
+        page,
+        continuation,
+        qualifying_total: None,
+    })
+    .with_query(GwasPageQuery::Search(q.clone()));
+    status::item(out, true, false, false);
 }
 
 fn empty(q: &GwasSearch) -> Outcome {

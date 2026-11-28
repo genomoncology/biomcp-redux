@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "gwas",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236/unpublished-ancestries?sort=sample_size&direction=desc",
+  "exchanges": [
+    {
+      "fetched": 1795837323,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 103,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"_embedded":{"unpublished_ancestries":[{"sample_size":242450,"ancestry_category":"European","_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236/unpublished-ancestries/229822795"}}},{"sample_size":55070,"ancestry_category":"East Asian","_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236/unpublished-ancestries/229822794"}}},{"sample_size":19577,"ancestry_category":"African American or Afro-Caribbean|Sub-Saharan African","_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236/unpublished-ancestries/229822796"}}},{"sample_size":9242,"ancestry_category":"Hispanic or Latin American","_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236/unpublished-ancestries/229822797"}}},{"sample_size":3656,"ancestry_category":"South Asian","_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/unpublished-studies/GCST91007236/unpublished-ancestries/229822798"}}}]}}
+      }
+    }
+  ]
+}

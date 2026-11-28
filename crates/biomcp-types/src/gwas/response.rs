@@ -91,6 +91,9 @@ impl ResponseBody for GwasLoci {
 pub struct GwasStudy {
     /// Exact accession.
     pub id: GwasStudyId,
+    /// The Catalog lists this record as unpublished.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub unpublished: bool,
     /// Source publication identity.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub publication: Option<Pmid>,
@@ -106,6 +109,9 @@ pub struct GwasStudy {
     /// Whole replication sample prose.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub replication_sample_description: Option<Text>,
+    /// Source sample counts by ancestry for unpublished studies.
+    #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
+    pub samples: Box<[GwasStudySample]>,
     /// Native discovery ancestry summaries.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub discovery_ancestries: Box<[Text]>,
@@ -154,6 +160,15 @@ pub struct GwasStudy {
 impl ResponseBody for GwasStudy {
     const SCHEMA: &'static str = "biomcp.gwas-study/7";
     type Query = GwasGet;
+}
+/// An ancestry category and its reported sample count.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
+pub struct GwasStudySample {
+    /// Catalog ancestry label.
+    pub ancestry: Text,
+    /// Catalog sample size for this label.
+    pub count: u64,
 }
 /// Native country and region metadata.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -222,7 +237,7 @@ pub enum GwasPageQuery {
     Get(GwasGet),
 }
 
-/// One publication's native study page, without inferred clinical meaning.
+/// Catalog study records for a publication or an exact unpublished accession.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct GwasStudyPage {

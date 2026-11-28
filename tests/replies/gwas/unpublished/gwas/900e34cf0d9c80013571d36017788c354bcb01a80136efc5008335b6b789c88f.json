@@ -1,0 +1,18 @@
+{
+  "method": "GET",
+  "source": "gwas",
+  "url": "https://www.ebi.ac.uk/gwas/rest/api/v2/associations?accession_id=GCST91007236&direction=asc&page=0&size=3&sort=p_value",
+  "exchanges": [
+    {
+      "fetched": 1795837324,
+      "status": 200,
+      "content_type": "application/json",
+      "delay_ms": 444,
+      "retry_after_ms": null,
+      "body": {
+        "kind": "json",
+        "value": {"_links":{"self":{"href":"https://www.ebi.ac.uk/gwas/rest/api/v2/associations?accession_id=GCST91007236&direction=asc&page=0&size=3&sort=p_value"}},"page":{"size":3,"totalElements":0,"totalPages":0,"number":0}}
+      }
+    }
+  ]
+}
