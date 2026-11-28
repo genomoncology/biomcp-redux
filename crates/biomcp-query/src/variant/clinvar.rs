@@ -2,7 +2,7 @@
 use crate::{Ctx, Outcome, status};
 use biodata::{ClinVarVariationId, Text, VariantId, VcvId};
 use biomcp_adapters::clinvar;
-use biomcp_fetch::{Deadline, RequestError, SourceError};
+use biomcp_fetch::{Deadline, RequestError};
 use biomcp_types::{
     AssertionId, AssertionSource, Paged, Problem, QueryInvalid, Reason, Section, Source,
     SourceNotice, SourceRecord, VariantAssertionsGet, VariantCard, VariantGet, VariantHeader,
@@ -99,13 +99,15 @@ fn candidate(
     archive: clinvar::Assertions,
     problems: &mut Vec<Problem>,
 ) -> Result<Option<VariantHeader>, RequestError> {
-    let Some(vcv) = archive.archive.map_err(|_| bad_reply())? else {
+    let invalid_archive = || biomcp_fetch::bad_reply(Source::ClinVar, None);
+    let Some(vcv) = archive.archive.map_err(|_| invalid_archive())? else {
         return Ok(None);
     };
-    let id =
-        VariantId::ClinVarVariation(ClinVarVariationId::new(vcv.get()).map_err(|_| bad_reply())?);
+    let id = VariantId::ClinVarVariation(
+        ClinVarVariationId::new(vcv.get()).map_err(|_| invalid_archive())?,
+    );
     let mut candidate = super::direct::candidate(query, Source::ClinVar);
-    candidate.record = SourceRecord::asked(None, &id).ok_or_else(bad_reply)?;
+    candidate.record = SourceRecord::asked(None, &id).ok_or_else(invalid_archive)?;
     candidate.identity.ids = Box::new([id, VariantId::Vcv(vcv)]);
     let page = VariantAssertionsGet::from_identity(
         VariantId::Vcv(vcv),
@@ -113,7 +115,7 @@ fn candidate(
         query.section_offset(),
         query.clinvar_kind(),
     )
-    .map_err(|_| bad_reply())?;
+    .map_err(|_| invalid_archive())?;
     let mut data = super::assertions::page(&page, archive.rows, archive.included_only);
     if let Some(assertion) = query.input().clinvar_assertion() {
         data.next = data.next.and_then(|next| {
@@ -159,17 +161,6 @@ fn assertion_page(
     VariantAssertionsGet::from_identity(VariantId::Vcv(vcv), next.limit(), next.offset(), None)?
         .select(record, version)
         .map(|selected| selected.at_offset(next.offset()))
-}
-
-fn bad_reply() -> RequestError {
-    SourceError {
-        source: Source::ClinVar,
-        reason: Reason::BadReply,
-        status: None,
-        tls_cause: None,
-        retry_after: None,
-    }
-    .into()
 }
 
 fn guidance(message: impl Into<Box<str>>) -> SourceNotice {
