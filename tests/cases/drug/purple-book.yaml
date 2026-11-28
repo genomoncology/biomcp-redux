@@ -26,12 +26,12 @@
       }
     },
     {
-      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--presentations", "--offline"],
-      "mcp": ["search", "drug", "Enbrel", "--source", "purple-book", "--presentations", "--offline"],
+      "run": ["search", "drug", "Enbrel", "--source", "purple-book", "--presentations", "--offset", "6", "--offline"],
+      "mcp": ["search", "drug", "Enbrel", "--source", "purple-book", "--presentations", "--offset", "6", "--offline"],
       "expect": {
         "/status": "complete",
         "/result/release_month": "October 2026",
-        "/page/total": 7,
+        "/page/total": 13,
         "/result/items/4/reference_bla": "BLA103795",
         "/result/items/4/name": "Eticovo",
         "/result/items/4/interchangeable": true,
@@ -49,8 +49,8 @@
       "expect": {
         "/status": "complete",
         "/result/release_month": "October 2026",
-        "/page/total": 2,
-        "/result/items/*/name": ["Erelzi Sensoready", "Eticovo"]
+        "/page/total": 3,
+        "/result/items/*/name": ["Enbrel", "Erelzi Sensoready", "Eticovo"]
       }
     }
   ]

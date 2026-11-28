@@ -7,3 +7,6 @@ pub use products::summarize;
 mod read;
 pub use read::SPEC;
 pub use read::{SnapshotSearch, search, sync_file, unavailable_notice};
+
+#[cfg(test)]
+mod tests;

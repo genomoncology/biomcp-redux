@@ -29,11 +29,11 @@ pub struct PurpleBookReference {
     pub bla_candidates: Box<[DrugId]>,
 }
 
-/// One biosimilar application with counts and dates from its matching presentations.
+/// One licensed application with counts and dates from its matching presentations.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct PurpleBookProduct {
-    /// Biosimilar application number.
+    /// FDA application number.
     pub bla: DrugId,
     /// Proprietary name on the first matching FDA product number.
     pub name: Box<str>,
@@ -84,18 +84,18 @@ pub struct PurpleBookProduct {
     pub first_interchangeable_exclusivity_expiration_unreported: Option<u32>,
 }
 
-/// One complete roster of matching biosimilar applications from the active FDA release.
+/// One complete roster of matching applications from the active FDA release.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 pub struct DrugPurpleBookProducts {
     /// FDA release month.
     pub release_month: Box<str>,
-    /// Number of matching biosimilar applications.
+    /// Number of matching applications.
     pub total: u64,
     /// Reference names and application evidence shared by this roster.
     #[serde(default, skip_serializing_if = "<[_]>::is_empty")]
     pub references: Box<[PurpleBookReference]>,
-    /// Biosimilar products in BLA order.
+    /// Products in BLA order.
     #[serde(default)]
     pub items: Box<[PurpleBookProduct]>,
 }

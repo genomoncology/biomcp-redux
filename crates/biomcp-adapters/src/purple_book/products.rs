@@ -2,7 +2,7 @@
 use super::dates::Dates;
 use biomcp_types::{
     DrugPurpleBookProducts, PurpleBookDesignationCount, PurpleBookPresentation, PurpleBookProduct,
-    PurpleBookReference,
+    PurpleBookReference, PurpleBookLicense,
 };
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -92,7 +92,7 @@ fn other<'a>(values: impl Iterator<Item = &'a str>, first: Option<&str>) -> Box<
 
 fn references(rows: &[PurpleBookPresentation]) -> Box<[PurpleBookReference]> {
     let mut by_names = BTreeMap::new();
-    for row in rows {
+    for row in rows.iter().filter(|row| row.license_type != PurpleBookLicense::Standalone) {
         by_names
             .entry((&row.reference_name, &row.reference_proper_name))
             .or_insert(row);
