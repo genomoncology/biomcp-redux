@@ -1,13 +1,13 @@
 //! Source-scoped row collections; local windows retain exact native totals.
 use super::{Records, SPEC};
 use crate::{mapped::Problems, raw::Field};
-use biodata::{NcbiGeneId, StudyId, StudyProfileId, Text};
+use biodata::{NcbiGeneId, StudyId, StudyProfileId, StudySampleListId, Text};
 use biomcp_fetch::{Arg, BadReply, Freshness, Input, Leg, PathSegment, Read, Reply, RequestError};
 use biomcp_types::{Source, StudyGet, StudyMutation, StudySample};
 use serde::{Deserialize, Serialize};
 
 const MAX_ROWS: u64 = 10_000_000; // cBioPortal's documented maximum page size.
-const MAX_BYTES: u64 = 16 * 1024 * 1024;
+pub(super) const MAX_BYTES: u64 = 16 * 1024 * 1024;
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Sample {
@@ -60,7 +60,7 @@ pub(super) fn endpoint(
         .fresh(Freshness::Days(1))
         .bytes(MAX_BYTES))
 }
-fn problems(id: &StudyId) -> Problems {
+pub(super) fn problems(id: &StudyId) -> Problems {
     Problems {
         source: Source::Cbioportal,
         record: crate::mapped::record(id),
@@ -123,7 +123,7 @@ pub fn samples(leg: &Leg<'_>, q: &StudyGet) -> Result<Records<StudySample>, Requ
 pub fn mutations(
     leg: &Leg<'_>,
     q: &StudyGet,
-) -> Result<(Records<StudyMutation>, StudyProfileId, NcbiGeneId), RequestError> {
+) -> Result<(Records<StudyMutation>, StudyProfileId, NcbiGeneId, StudySampleListId), RequestError> {
     let gene = gene(leg, q)?;
     let profile = profile(leg, q)?;
     let (sample_list_id, list_problems) = sample_list(leg, q.id())?;
@@ -194,6 +194,7 @@ pub fn mutations(
         },
         profile,
         gene,
+        sample_list_id,
     ))
 }
 

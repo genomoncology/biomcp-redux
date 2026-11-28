@@ -9,19 +9,21 @@ biodata::wire_enum! {
     described
     /// Supported bounded study metadata sections.
     StudySection {
-        /// Five exact native molecular profile references.
+        /// Molecular profiles.
         Profiles => "profiles",
-        /// Five sample-list metadata records, without member sample IDs.
+        /// Sample-list metadata.
         SampleLists => "sample-lists",
-        /// Source mutation rows for the required gene and selected mutation profile.
+        /// Mutation rows for one gene, using the all-cases sample list.
         Mutations => "mutations",
-        /// Source sample identities and types only.
+        /// Fusions and rearrangements for one gene.
+        StructuralVariants => "structural-variants",
+        /// Sample IDs and types.
         Samples => "samples",
-        /// cBioPortal's own amplification and deep-deletion sample counts for the required gene in the study's discrete copy-number profile.
+        /// Discrete copy-number counts for one gene.
         Cna => "cna",
-        /// Five repository file references; no automatic download.
+        /// Repository file links.
         Files => "files",
-        /// Bounded first pages; mutations are included only when gene is supplied.
+        /// First pages; mutations require a gene.
         All => "all"
     }
 }
@@ -125,24 +127,24 @@ pub struct StudyGet(GetFields);
 #[serde(deny_unknown_fields)]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct GetFields {
-    /// Exact source study ID; no default or repair.
+    /// Exact study ID.
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     id: StudyId,
-    /// Omit for the card; all returns bounded first pages only.
+    /// Omit for the study card.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 1)))]
     section: Option<StudySection>,
-    /// Maximum records in each selected section.
+    /// Rows per section (default 5).
     #[serde(default = "limit")]
     #[cfg_attr(feature = "schema", schemars(range(min = 1, max = crate::HELD_PAGE_MAX)))]
     section_limit: u32,
-    /// Offset within one named section; all requires zero.
+    /// Offset in one section.
     #[serde(default)]
     section_offset: u32,
-    /// Exact cBioPortal HUGO gene symbol or Entrez ID; required for mutations and cna.
+    /// HUGO symbol or Entrez ID for mutations, structural-variants and cna.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     gene: Option<Text>,
-    /// Exact mutation profile ID, or discrete copy-number profile ID for cna; omitted selects the study's first profile of that kind.
+    /// Exact profile ID. Defaults to the first of that section’s kind.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     molecular_profile: Option<biodata::StudyProfileId>,
 }
@@ -156,7 +158,7 @@ impl TryFrom<GetFields> for StudyGet {
         if matches!(v.section, None | Some(StudySection::All)) && v.section_offset != 0 {
             return Err(QueryInvalid::new(&["section", "section_offset"]));
         }
-        if (matches!(v.section, Some(StudySection::Mutations | StudySection::Cna))
+        if (matches!(v.section, Some(StudySection::Mutations | StudySection::StructuralVariants | StudySection::Cna))
             || v.molecular_profile.is_some())
             && v.gene.is_none()
         {
@@ -165,7 +167,7 @@ impl TryFrom<GetFields> for StudyGet {
         if (v.gene.is_some() || v.molecular_profile.is_some())
             && !matches!(
                 v.section,
-                Some(StudySection::Mutations | StudySection::Cna | StudySection::All)
+                Some(StudySection::Mutations | StudySection::StructuralVariants | StudySection::Cna | StudySection::All)
             )
         {
             return Err(QueryInvalid::new(&["section", "gene", "molecular_profile"]));
@@ -190,11 +192,11 @@ impl StudyGet {
     pub fn gene(&self) -> Option<&Text> {
         self.0.gene.as_ref()
     }
-    /// Caller-selected mutation or copy-number profile, otherwise chosen from study metadata.
+    /// Caller-selected profile, otherwise chosen from study metadata.
     pub fn molecular_profile(&self) -> Option<&biodata::StudyProfileId> {
         self.0.molecular_profile.as_ref()
     }
-    /// Bind subsequent mutation pages to the selected source profile.
+    /// Bind subsequent pages to the selected source profile.
     pub fn with_molecular_profile(&self, profile: biodata::StudyProfileId) -> Self {
         let mut q = self.clone();
         q.0.molecular_profile = Some(profile);
@@ -222,7 +224,7 @@ impl StudyGet {
         q.0.section = Some(section);
         if !matches!(
             section,
-            StudySection::Mutations | StudySection::Cna | StudySection::All
+            StudySection::Mutations | StudySection::StructuralVariants | StudySection::Cna | StudySection::All
         ) {
             q.0.gene = None;
             q.0.molecular_profile = None;

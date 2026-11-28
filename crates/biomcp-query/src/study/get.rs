@@ -3,6 +3,7 @@ use biomcp_types::ReplyBody;
 mod copy_number;
 mod files;
 mod rows;
+mod structural_variants;
 use super::{empty, finish};
 use crate::{Ctx, Outcome};
 use biomcp_adapters::cbioportal::{SPEC, studies};
@@ -21,6 +22,9 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
             biomcp_types::StudySampleLists::into_reply(q.clone(), None)
         }
         Some(StudySection::Mutations) => biomcp_types::StudyMutations::into_reply(q.clone(), None),
+        Some(StudySection::StructuralVariants) => {
+            biomcp_types::StudyStructuralVariants::into_reply(q.clone(), None)
+        }
         Some(StudySection::Samples) => biomcp_types::StudySamples::into_reply(q.clone(), None),
         Some(StudySection::Files) => biomcp_types::StudyFiles::into_reply(q.clone(), None),
         Some(StudySection::Cna) => biomcp_types::StudyCopyNumber::into_reply(q.clone(), None),
@@ -63,6 +67,7 @@ pub(crate) fn get(cx: &Ctx<'_>, q: &StudyGet) -> Outcome {
     files::section(cx, q, deadline, &mut out);
     rows::section(cx, q, deadline, &mut out);
     copy_number::section(cx, q, deadline, &mut out);
+    structural_variants::section(cx, q, deadline, &mut out);
     command.finish(deadline.remaining());
     out
 }

@@ -157,6 +157,7 @@ fn navigation(body: &biomcp_types::ReplyData) -> Navigation<'_> {
         ReplyData::StudyProfiles { .. }
         | ReplyData::StudySampleLists { .. }
         | ReplyData::StudySamples { .. }
+        | ReplyData::StudyStructuralVariants { .. }
         | ReplyData::StudyMutations { .. }
         | ReplyData::StudyCopyNumber { .. }
         | ReplyData::StudyFiles { .. } => Navigation::Bounded,

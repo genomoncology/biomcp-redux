@@ -33,6 +33,13 @@ pub fn copy_number_profiles(
 ) -> Result<Vec<StudyProfileId>, RequestError> {
     profiles_of(leg, q, "COPY_NUMBER_ALTERATION", Some("DISCRETE"))
 }
+/// The study's structural variant profiles, in source order.
+pub fn structural_variant_profiles(
+    leg: &Leg<'_>,
+    q: &StudyGet,
+) -> Result<Vec<StudyProfileId>, RequestError> {
+    profiles_of(leg, q, "STRUCTURAL_VARIANT", None)
+}
 fn profiles_of(
     leg: &Leg<'_>,
     q: &StudyGet,

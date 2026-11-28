@@ -41,6 +41,7 @@ macro_rules! reply_types {
             study_card: $crate::StudyCard => "study-card",
             study_profiles: $crate::StudyProfiles => "study-profiles",
             study_sample_lists: $crate::StudySampleLists => "study-sample-lists",
+            study_structural_variants: $crate::StudyStructuralVariants => "study-structural-variants",
             study_mutations: $crate::StudyMutations => "study-mutations",
             study_copy_number: $crate::StudyCopyNumber => "study-copy-number",
             study_samples: $crate::StudySamples => "study-samples",

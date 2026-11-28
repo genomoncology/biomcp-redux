@@ -76,7 +76,7 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
         }
         continuation(out, cx, q, rows.rejected != 0, offset);
     } else {
-        let (rows, profile, gene) = match studies::mutations(leg, q) {
+        let (rows, profile, gene, sample_list_id) = match studies::mutations(leg, q) {
             Ok(found) => found,
             Err(error) => {
                 if let Some(usage) = profile_refused(
@@ -101,6 +101,7 @@ fn page(leg: &Leg<'_>, q: &StudyGet, cx: &Ctx<'_>, out: &mut Outcome) -> Result<
             study_id: q.id().clone(),
             molecular_profile_id: profile,
             entrez_gene_id: gene,
+            sample_list_id: Some(sample_list_id),
             total: page.total,
             items: rows.window.rows.into(),
             page: page.clone(),
@@ -155,7 +156,7 @@ pub(super) fn profile_refused(
         },
     )))
 }
-fn page_info<T>(window: &biomcp_adapters::NativeWindow<T>) -> PageInfo {
+pub(super) fn page_info<T>(window: &biomcp_adapters::NativeWindow<T>) -> PageInfo {
     PageInfo {
         offset: window.offset(),
         returned: window.rows.len() as u32,

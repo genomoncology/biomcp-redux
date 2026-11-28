@@ -155,6 +155,9 @@ pub struct StudyMutations {
     pub study_id: StudyId,
     /// Selected mutation profile, including an automatically chosen default.
     pub molecular_profile_id: biodata::StudyProfileId,
+    /// All-cases sample list sent to cBioPortal. Older replies may omit it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sample_list_id: Option<biodata::StudySampleListId>,
     /// Exact cBioPortal gene identifier.
     pub entrez_gene_id: biodata::NcbiGeneId,
     /// Rows in the whole collection, equal to `page.total`; the count to report (1022).
