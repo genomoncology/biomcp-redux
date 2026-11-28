@@ -14,6 +14,11 @@ pub(super) struct Stated {
     pub(super) ambiguous: bool,
 }
 impl Stated {
+    /// The source's main name, ahead of any alternate names.
+    pub(super) fn preferred(&self) -> Option<&Text> {
+        self.names.first()
+    }
+
     fn card(card: &DrugCard) -> Self {
         Self {
             source: card.header.source,

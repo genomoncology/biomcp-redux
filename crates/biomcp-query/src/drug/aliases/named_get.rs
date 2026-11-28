@@ -242,15 +242,20 @@ pub(in crate::drug) fn partner<T>(
     )
 }
 
-/// Retry a WHO listing under another source's stated name after the eEML misses.
+/// Retry a WHO listing under the preferred name for a uniquely resolved drug.
 pub(in crate::drug) fn listing_name<T>(
     cx: &Ctx<'_>,
     input: &Text,
     mut attempt: impl FnMut(&Text) -> Option<T>,
 ) -> (Option<T>, Aliased) {
     let selected = DrugSource::WhoEml;
-    let (found, _, evidence) = with_aliases(cx, input, selected, |stated, name, _| {
-        attempt(name).map(|found| {
+    let (found, _, mut evidence) = with_aliases(cx, input, selected, |stated, name, _| {
+        if stated.preferred() != Some(name) {
+            return None;
+        }
+        // Once a source identifies the drug and supplies its preferred name, use that name
+        // for one eEML search. Alternate names can include a long list of research codes.
+        let found = attempt(name).map(|found| {
             let message = format!(
                 "{} record {} supplies the name {:?} for {:?}; the eEML lists that name.",
                 stated.source,
@@ -259,9 +264,21 @@ pub(in crate::drug) fn listing_name<T>(
                 input.as_str()
             );
             (found, message)
-        })
+        });
+        Some(found)
+    });
+    // These are the sources of the name lookups. Carried MyChem cross-references did not
+    // have separate requests and add no detail about the WHO lookup.
+    evidence.sources.retain(|row| {
+        matches!(
+            row.source,
+            biomcp_types::Source::Mychem
+                | biomcp_types::Source::Chembl
+                | biomcp_types::Source::OpenfdaLabel
+        )
     });
     let (found, message) = found
+        .flatten()
         .map(|(found, message)| (Some(found), Some(message)))
         .unwrap_or_default();
     (
