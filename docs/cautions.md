@@ -151,7 +151,7 @@ CDC WONDER refuses a table request that comes less than 15 seconds after the las
 
 FAERS drug searches default to `--drug-role any`. The count includes reports listing the drug in any role, including concomitant, and the reply states the role in `query.drug_role`.
 
-`--drug-role suspect` counts a report when a searched name matches the whole generic, brand or medicinal-product name on a drug entry marked suspect, ignoring letter case. BioMCP checks these entries because openFDA indexes names and roles across the whole report. If more than one search page of candidate reports needs checking, BioMCP asks you to narrow the receipt dates before giving a total. The suspect filter applies to report searches. Aggregations use the any-role count.
+`--drug-role suspect` counts a report when a searched name matches the whole generic, brand or medicinal-product name on a drug entry marked suspect, ignoring letter case. BioMCP checks these entries because openFDA indexes names and roles across the whole report. If the candidate reports exceed the maximum search page size, BioMCP asks you to narrow the receipt dates before giving a total. The suspect filter applies to report searches. Aggregations use the any-role count.
 
 ## FAERS report sections
 

@@ -1,0 +1,24 @@
+feature: adverse-event-search
+story: A FAERS search counts every role by default and can count only reports where the named drug is marked suspect on the same drug entry.
+replay: adverse-event/faers-drug-role
+live_check: Recorded receipt-date comparison.
+verified: BioMCP recorded both requests in j48676. openFDA returned seven report matches for both native queries. Report 24843414 lists warfarin as concomitant and has a different suspect drug. BioMCP's same-entry check finds three reports listing warfarin as suspect.
+steps:
+  - run: [search, adverse-event, warfarin, --exact-term, --received-from, '2025-01-15', --received-to, '2025-01-15', --limit, '1']
+    expect:
+      /status: complete
+      /query/drug_role: any
+      /page/total: 7
+      /result/items/0/id: '24843414'
+  - run: [search, adverse-event, warfarin, --drug-role, suspect, --exact-term, --received-from, '2025-01-15', --received-to, '2025-01-15', --limit, '1']
+    expect:
+      /status: complete
+      /query/drug_role: suspect
+      /page/total: 3
+      /result/items/0/id: '24845654'
+  - follow: page
+    expect:
+      /query/drug_role: suspect
+      /page/offset: 1
+      /page/total: 3
+      /result/items/0/id: '24846267'
