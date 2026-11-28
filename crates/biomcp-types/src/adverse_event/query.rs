@@ -145,6 +145,15 @@ impl SearchFields {
         self.offset.unwrap_or_default()
     }
 
+    fn compact_faers_defaults(&mut self) {
+        if self.source() == AdverseEventSource::Faers && self.drug_role.is_some() {
+            self.source = None;
+            if self.offset() == 0 {
+                self.offset = None;
+            }
+        }
+    }
+
     fn validate_drug_names(&self) -> Result<(), QueryInvalid> {
         if self.source() == AdverseEventSource::Faers
             && self.drug.iter().any(|name| {
@@ -283,6 +292,7 @@ impl TryFrom<SearchFields> for AdverseEventSearch {
         }
         v.validate_source_filters()?;
         v.validate_drug_names()?;
+        v.compact_faers_defaults();
         let query = Self(v);
         if query.source() == AdverseEventSource::Faers
             && query.faers_expression().len() > super::faers::FAERS_QUERY_MAX_BYTES
@@ -390,10 +400,7 @@ impl AdverseEventSearch {
         let mut query = self.clone();
         if self.source() == AdverseEventSource::Faers {
             query.0.drug_role = Some(self.drug_role());
-            query.0.source = None;
-            if self.offset() == 0 {
-                query.0.offset = None;
-            }
+            query.0.compact_faers_defaults();
         }
         query
     }
