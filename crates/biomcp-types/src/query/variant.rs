@@ -206,30 +206,7 @@ impl TryFrom<Fields> for VariantGet {
         if fields.section_limit.is_some_and(|n| !(1..=50).contains(&n)) {
             return Err(super::gene::QueryInvalid::new(&["section_limit"]));
         }
-        if fields
-            .civic_profile
-            .is_some_and(|id| id == 0 || id > i32::MAX as u64)
-        {
-            return Err(super::gene::QueryInvalid::new(&["civic_profile"]));
-        }
-        if fields.civic_profile.is_some() != fields.civic_kind.is_some() {
-            return Err(super::gene::QueryInvalid::new(&[
-                "civic_profile",
-                "civic_kind",
-            ]));
-        }
-        if fields.civic_cursor.is_some() && fields.civic_profile.is_none() {
-            return Err(super::gene::QueryInvalid::new(&[
-                "civic_cursor",
-                "civic_profile",
-            ]));
-        }
-        if fields.civic_profile.is_some() && !civic_section {
-            return Err(super::gene::QueryInvalid::new(&[
-                "civic_profile",
-                "section",
-            ]));
-        }
+        civic_selectors(&fields, civic_section)?;
         // OncoKB's key, build and tumor checks run with the section (1004): a missing key
         // skips it like any licensed section, and missing context names its help step.
         let build = fields.build.filter(|_| !fields.build_defaulted);
@@ -249,6 +226,45 @@ impl TryFrom<Fields> for VariantGet {
         query.0.offset = fields.offset;
         Ok(query)
     }
+}
+/// CIViC profile, kind and cursor go together, and only with the CIViC section.
+fn civic_selectors(fields: &Fields, civic_section: bool) -> Result<(), super::gene::QueryInvalid> {
+    if fields
+        .civic_profile
+        .is_some_and(|id| id == 0 || id > i32::MAX as u64)
+    {
+        return Err(super::gene::QueryInvalid::new(&["civic_profile"]));
+    }
+    // A profile ID or exact profile name already selects the profile (1251).
+    let profile_input = fields.input.namespace() == VariantNamespace::CivicProfile;
+    if (fields.civic_profile.is_some() && fields.civic_kind.is_none())
+        || (fields.civic_kind.is_some() && fields.civic_profile.is_none() && !profile_input)
+    {
+        return Err(super::gene::QueryInvalid::new(&[
+            "civic_profile",
+            "civic_kind",
+        ]));
+    }
+    if profile_input
+        && let (Some(profile), Ok(id)) =
+            (fields.civic_profile, fields.input.as_str().parse::<u64>())
+        && profile != id
+    {
+        return Err(super::gene::QueryInvalid::new(&["input", "civic_profile"]));
+    }
+    if fields.civic_cursor.is_some() && fields.civic_profile.is_none() {
+        return Err(super::gene::QueryInvalid::new(&[
+            "civic_cursor",
+            "civic_profile",
+        ]));
+    }
+    if fields.civic_profile.is_some() && !civic_section {
+        return Err(super::gene::QueryInvalid::new(&[
+            "civic_profile",
+            "section",
+        ]));
+    }
+    Ok(())
 }
 impl VariantGet {
     /// Default identity lookup assembly; --build overrides this setting.

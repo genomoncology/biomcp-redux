@@ -58,6 +58,12 @@ pub(super) fn get(
     source: Source,
     mut deadline: Deadline<'_>,
 ) -> Outcome {
+    if source == Source::Civic
+        && !cx.fetch.disabled(source)
+        && let Some(refused) = super::civic::profile_refused(cx, query, deadline)
+    {
+        return refused;
+    }
     let mut candidates = vec![candidate(query, source)];
     let (sources, mut problems, local, incomplete) =
         super::sections::apply(cx, query, &mut candidates, &mut deadline, None);

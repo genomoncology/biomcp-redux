@@ -39,11 +39,7 @@ pub fn variant(
     candidate: &VariantHeader,
 ) -> Result<Mapped<VariantCivic>, RequestError> {
     if query.input().namespace() == VariantNamespace::CivicProfile {
-        let id = match query.input().as_str().parse() {
-            Ok(id) => Some(id),
-            Err(_) => super::variant_profile::exact_id(leg, query.input().text())?,
-        };
-        return match id {
+        return match profile_id(leg, query)? {
             Some(id) if query.civic_profile().is_none_or(|profile| profile == id) => {
                 profiles(leg, query, None, Some(id))
             }
@@ -100,6 +96,13 @@ pub fn variant(
         code: biomcp_types::ProblemCode::ValueUnknown,
     });
     Ok(exact)
+}
+/// The CIViC profile a profile-ID or exact-name input names; `None` when no profile has that name.
+pub fn profile_id(leg: &Leg<'_>, query: &VariantGet) -> Result<Option<u64>, RequestError> {
+    match query.input().as_str().parse() {
+        Ok(id) => Ok(Some(id)),
+        Err(_) => super::variant_profile::exact_id(leg, query.input().text()),
+    }
 }
 fn profiles(
     leg: &Leg<'_>,

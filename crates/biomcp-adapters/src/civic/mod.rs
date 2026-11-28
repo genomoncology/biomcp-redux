@@ -25,7 +25,7 @@ use biomcp_types::{CivicGene, Section, Source, SourceRecord};
 pub use drug::drug_search;
 pub use drug_get::drug_civic;
 use std::time::Duration;
-pub use variant::variant;
+pub use variant::{profile_id, variant};
 /// Public CIViC GraphQL source policy.
 pub static SPEC: SourceSpec = SourceSpec {
     destinations: biomcp_fetch::Destinations::Primary,

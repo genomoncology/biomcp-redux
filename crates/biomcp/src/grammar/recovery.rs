@@ -174,6 +174,14 @@ pub(super) fn fixed(
             serde_json::json!({"query": value.get("input")?, "source": fda_dsc}),
         );
     }
+    if path == ("get", "variant")
+        && cause
+            .arguments()
+            .iter()
+            .any(|name| name.as_ref() == "civic_profile")
+    {
+        return civic_profile_dropped(via, value);
+    }
     let mut candidate = value.clone();
     let fields = candidate.as_object_mut()?;
     match cause.message()? {
@@ -188,6 +196,21 @@ pub(super) fn fixed(
         _ => return None,
     }
     checked(via, path, candidate)
+}
+
+/// A CIViC profile ID comes from the source, never from the schema's minimum, which a model
+/// copies as if it were the input's profile (1251). The call without the profile works when the
+/// input names one profile; otherwise the profile overview lists each profile's real ID.
+fn civic_profile_dropped(via: Rewrite, value: &Value) -> Option<Step> {
+    let mut candidate = value.clone();
+    let fields = candidate.as_object_mut()?;
+    fields.remove("civic_profile");
+    checked(via, ("get", "variant"), candidate.clone()).or_else(|| {
+        let fields = candidate.as_object_mut()?;
+        fields.remove("civic_kind");
+        fields.remove("civic_cursor");
+        checked(via, ("get", "variant"), candidate)
+    })
 }
 
 /// A certain correction replaces help: the refusal's only step is the call to run.
