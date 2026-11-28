@@ -99,7 +99,7 @@ fn name_parameters(
     if let Some(status) = query.status() {
         p.insert("filter.overallStatus".into(), status.as_str().to_owned());
     }
-    let advanced = filters::advanced(query, broader_names, id);
+    let advanced = filters::advanced(query, broader_names, id, query.sponsor().map(Text::as_str));
     if !advanced.is_empty() {
         p.insert("filter.advanced".into(), advanced);
     }
@@ -264,6 +264,8 @@ fn alternatives(values: &[Text]) -> String {
 
 mod search_query;
 pub use search_query::{name_fits, search_query, text_search_notice};
+mod sponsor_names;
+pub use sponsor_names::sponsor_notice;
 mod site_count;
 pub use site_count::site_count;
 mod skip;

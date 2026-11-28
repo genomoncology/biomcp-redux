@@ -107,6 +107,12 @@ fn search<'a>(
         Ok(_) => ctgov::version(&leg),
         Err(error) => Err(*error),
     };
+    if search_notices.is_empty()
+        && version.is_ok()
+        && let Ok(page) = &result
+    {
+        search_notices.extend(ctgov::sponsor_notice(&leg, searched, gene.as_deref(), condition.as_ref(), page));
+    }
     let error = result
         .as_ref()
         .err()

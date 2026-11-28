@@ -154,7 +154,7 @@ pub fn text_search_notice(query: &TrialSearch, gene: Option<&str>) -> Option<Sou
     })
 }
 
-fn guidance(message: String) -> SourceNotice {
+pub(super) fn guidance(message: String) -> SourceNotice {
     SourceNotice::RequestGuidance {
         data_date: None,
         message: message.into(),

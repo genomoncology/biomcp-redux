@@ -1,0 +1,29 @@
+{
+  "feature": "trial-search",
+  "live_check": "public",
+  "story": "The registry spelling shown in sponsor help finds its own trials. A sparse lead-sponsor search keeps its rows and discloses the much larger count for the dotted spelling.",
+  "replay": "trial/lead-sponsor-name",
+  "steps": [
+    {
+      "run": ["search", "trial", "--sponsor", "M.D. Anderson Cancer Center", "--limit", "1"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 3051,
+        "/result/items/0/sponsor": "M.D. Anderson Cancer Center",
+        "/sources/0/notices": {"count": 1}
+      },
+      "max_bytes": 4000
+    },
+    {
+      "run": ["search", "trial", "--sponsor", "MD Anderson", "--limit", "1"],
+      "expect": {
+        "/status": "complete",
+        "/page/total": 1,
+        "/result/items/0/sponsor": "MD Anderson International Spain SA",
+        "/sources/0/notices/1/kind": "request-guidance",
+        "/sources/0/notices/1/message": "ClinicalTrials.gov lead sponsor search for \"MD Anderson\" yielded a count of 1. Searching the registry spelling \"M.D. Anderson Cancer Center\" with the same filters yielded a count of 3051."
+      },
+      "max_bytes": 3000
+    }
+  ]
+}

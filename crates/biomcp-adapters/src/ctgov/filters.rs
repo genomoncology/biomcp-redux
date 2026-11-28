@@ -41,6 +41,7 @@ pub(super) fn advanced(
     query: &TrialSearch,
     broader_names: bool,
     id: Option<biodata::NctId>,
+    sponsor: Option<&str>,
 ) -> String {
     let mut advanced = Vec::new();
     if query.exact_condition() {
@@ -87,10 +88,6 @@ pub(super) fn advanced(
             "LocationFacility",
             query.facility().filter(|_| !broader_names),
         ),
-        (
-            sponsor_area(query),
-            query.sponsor().filter(|_| !broader_names),
-        ),
     ] {
         if let Some(value) = value {
             // A group of quoted spellings BioMCP wrote is already registry syntax.
@@ -100,6 +97,9 @@ pub(super) fn advanced(
                 advanced.push(format!("AREA[{field}]{}", quote(value.as_str())));
             }
         }
+    }
+    if let Some(sponsor) = sponsor.filter(|_| !broader_names) {
+        advanced.push(format!("AREA[{}]{}", sponsor_area(query), quote(sponsor)));
     }
     if let Some(study_type) = query.study_type() {
         advanced.push(format!("AREA[StudyType]{}", study_type.as_str()));
