@@ -196,7 +196,8 @@ class MutationCommands(unittest.TestCase):
                    self.deadline_runner(self.root / 'nested-ready', self.root / 'nested-pid'))
         runner = subprocess.Popen([*command, 'shard', '--plan', str(self.plan),
                                    '--index', '0'], cwd=self.root, env=self.env,
-                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                  stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
+        self.addCleanup(runner.stderr.close)
         self.addCleanup(lambda: runner.poll() is None and runner.kill())
         deadline = time.monotonic() + 15
         while not all((self.root / name).exists() for name in ('nested-ready', 'nested-pid')):
@@ -212,7 +213,8 @@ class MutationCommands(unittest.TestCase):
         self.addCleanup(cleanup)
         if cancel:
             runner.terminate()
-        self.assertEqual(runner.wait(timeout=15), 143 if cancel else 0)
+        _, error = runner.communicate(timeout=15)
+        self.assertEqual(runner.returncode, 143 if cancel else 0, error)
         if not cancel:
             self.assert_shared_deadline_wait()
         # A separate native Cargo group must not outlive its runner.
