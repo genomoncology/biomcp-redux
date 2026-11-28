@@ -7,7 +7,10 @@
     reason = "Public store and concurrency contracts own isolated fixture I/O and abort on invalid fixture setup"
 )]
 
-use biomcp_fetch::{CacheError, Fetch, FetchConfig, Mode, ReplayCache, RequestError};
+use biomcp_fetch::{
+    CacheError, Fetch, FetchConfig, Mode, PacingOverride, PacingRate, ReplayCache, RequestError,
+    SourcePacing,
+};
 use biomcp_query::{Ctx, Outcome};
 use biomcp_test_support::recordings as recording_support;
 use biomcp_types::{ArticlePage, ArticleSearch, ReplyData, Request, Status};
@@ -18,15 +21,38 @@ fn recordings(name: &str) -> PathBuf {
         .join(name)
 }
 fn fetch(name: &str, cache: ReplayCache) -> Fetch {
+    fetch_paced(name, cache, SourcePacing::default())
+}
+fn fetch_paced(name: &str, cache: ReplayCache, source_pacing: SourcePacing) -> Fetch {
     Fetch::open(FetchConfig {
         mode: Mode::Replay {
             dir: recordings(name),
         },
         replay_cache: Some(cache),
+        source_pacing,
         cache_owners: vec![biomcp_query::store::OWNER],
         ..FetchConfig::default()
     })
     .unwrap()
+}
+/// NCBI paced at one request per `seconds`. Local SQLite work is bounded in wall time by what
+/// remains of a replay budget, so budget tests scale replay time up to leave seconds, not
+/// milliseconds, for it under gate load (1250).
+fn ncbi_paced(seconds: u16) -> SourcePacing {
+    let mut pacing = SourcePacing::default();
+    pacing
+        .insert(
+            biomcp_adapters::pubmed::SPEC.quota,
+            PacingOverride {
+                rate: Some(PacingRate {
+                    requests: 1,
+                    seconds,
+                }),
+                ..PacingOverride::default()
+            },
+        )
+        .unwrap();
+    pacing
 }
 fn query(pool: Option<&str>, offset: u32) -> ArticleSearch {
     let query: ArticleSearch =
@@ -62,7 +88,8 @@ fn page(out: Outcome) -> (biomcp_types::PageInfo, ArticlePage) {
     assert_eq!(
         out.status(),
         Status::Complete,
-        "Article pages must preserve their snapshot and paging contract"
+        "Article pages must preserve their snapshot and paging contract: {:?}",
+        out.sources
     );
     let ReplyData::ArticlePage {
         body: Some(page), ..
@@ -238,21 +265,10 @@ fn concurrent_hydration_retains_accepted_headers_and_snapshot_metadata() {
 #[test]
 fn sequential_replay_commands_receive_new_budgets_after_provider_quota_waits() {
     let cache = ReplayCache::temporary().unwrap();
-    let fetch = fetch("synthetic-small", cache);
+    // Each budget is five NCBI intervals, as 2 s was at the keyless 0.4 s spacing.
+    let fetch = fetch_paced("synthetic-small", cache, ncbi_paced(7));
     for _ in 0..6 {
-        let out = biomcp_query::run(
-            &Ctx {
-                fetch: &fetch,
-                budget: Duration::from_secs(2),
-                fresh: true,
-                drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
-                label_bytes: biomcp_query::LABEL_BYTES,
-                fit_deadline: biomcp_query::FIT_DEADLINE,
-                ncbi_email: None,
-            },
-            &Request::SearchArticle(query(None, 0)),
-        );
-        page(out);
+        page(run_within(&fetch, query(None, 0), true, Duration::from_secs(35)));
     }
 }
 #[test]
@@ -274,26 +290,13 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
         )
         .unwrap();
     }
-    // NCBI paced at one request per 28 s, so the 14 s search overlaps the spacing; the search and
-    // the title read's 14 s wait each stay under PubMed's 15 s request limit.
-    let mut source_pacing = biomcp_fetch::SourcePacing::default();
-    source_pacing
-        .insert(
-            biomcp_adapters::pubmed::SPEC.quota,
-            biomcp_fetch::PacingOverride {
-                rate: Some(biomcp_fetch::PacingRate {
-                    requests: 1,
-                    seconds: 28,
-                }),
-                ..Default::default()
-            },
-        )
-        .unwrap();
     let fetch = Fetch::open(FetchConfig {
         mode: Mode::Replay {
             dir: directory.path().to_owned(),
         },
-        source_pacing,
+        // The 14 s search overlaps the 28 s spacing; the search and the title read's 14 s wait
+        // each stay under PubMed's 15 s request limit.
+        source_pacing: ncbi_paced(28),
         cache_owners: vec![biomcp_query::store::OWNER],
         ..Default::default()
     })
@@ -319,37 +322,13 @@ fn replay_stages_count_elapsed_response_time_once_when_waiting_for_quota() {
 #[test]
 fn overlapping_replay_commands_complete_without_adding_each_others_spend() {
     let cache = ReplayCache::temporary().unwrap();
-    let fetch = fetch("synthetic-small", cache);
+    // Each budget is five NCBI intervals, as 2 s was at the keyless 0.4 s spacing.
+    let fetch = fetch_paced("synthetic-small", cache, ncbi_paced(7));
+    let budget = Duration::from_secs(35);
     for _ in 0..3 {
         let outcomes = std::thread::scope(|scope| {
-            let one = scope.spawn(|| {
-                biomcp_query::run(
-                    &Ctx {
-                        fetch: &fetch,
-                        budget: Duration::from_secs(2),
-                        fresh: true,
-                        drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
-                        label_bytes: biomcp_query::LABEL_BYTES,
-                        fit_deadline: biomcp_query::FIT_DEADLINE,
-                        ncbi_email: None,
-                    },
-                    &Request::SearchArticle(query(None, 0)),
-                )
-            });
-            let two = scope.spawn(|| {
-                biomcp_query::run(
-                    &Ctx {
-                        fetch: &fetch,
-                        budget: Duration::from_secs(2),
-                        fresh: true,
-                        drug_name_limit: biomcp_query::DRUG_NAME_LIMIT,
-                        label_bytes: biomcp_query::LABEL_BYTES,
-                        fit_deadline: biomcp_query::FIT_DEADLINE,
-                        ncbi_email: None,
-                    },
-                    &Request::SearchArticle(query(None, 0)),
-                )
-            });
+            let one = scope.spawn(|| run_within(&fetch, query(None, 0), true, budget));
+            let two = scope.spawn(|| run_within(&fetch, query(None, 0), true, budget));
             [one.join().unwrap(), two.join().unwrap()]
         });
         let ids = outcomes
