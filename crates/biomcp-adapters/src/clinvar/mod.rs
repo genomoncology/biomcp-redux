@@ -1,4 +1,4 @@
-//! ClinVar VCV XML by a checked Variation ID, without text-search identity.
+//! ClinVar archives by checked Variation ID or accession.
 use biomcp_fetch::{Input, Read};
 mod detail;
 mod gene;
@@ -16,7 +16,7 @@ use biomcp_fetch::{
     Arg, Credential, Endpoint, Freshness, KeyPlace, KeyUse, Leg, RequestError, SecretName,
     SourceSpec,
 };
-use biomcp_types::{ClinvarIncluded, Source, VariantAssertion};
+use biomcp_types::{ClinvarIncluded, Source, VariantAssertion, VcvId};
 pub use search::{SearchPage, search};
 use std::time::Duration;
 /// ClinVar shares the existing NCBI quota and optional user key.
@@ -58,6 +58,8 @@ const FETCH: Endpoint = SPEC.get("/efetch.fcgi").fresh(Freshness::Days(1));
 /// Assertions and included-only relationships from a single ClinVar archive.
 #[derive(Debug)]
 pub struct Assertions {
+    /// Checked accession and version of the archive served.
+    pub archive: Option<VcvId>,
     /// Direct assertion rows.
     pub rows: Vec<VariantAssertion>,
     /// The archive's including records when it owns no submissions.
@@ -67,11 +69,21 @@ pub struct Assertions {
 pub fn assertions(
     leg: &Leg<'_>,
     id: &str,
+    archive: Option<VcvId>,
     selection: Option<(&biomcp_types::AssertionId, Option<&str>)>,
 ) -> Result<crate::Mapped<Assertions>, RequestError> {
-    let selected_vcv = selection
-        .filter(|(id, _)| matches!(id, biomcp_types::AssertionId::Vcv(_)))
-        .map(|(id, version)| (id.to_string(), version));
+    let archive = archive
+        .filter(|id| id.version().is_some())
+        .map(|id| id.to_string());
+    let selected_vcv = if let Some((record, version)) =
+        archive.as_deref().and_then(|value| value.split_once('.'))
+    {
+        Some((record.to_owned(), Some(version)))
+    } else {
+        selection
+            .filter(|(id, _)| matches!(id, biomcp_types::AssertionId::Vcv(_)))
+            .map(|(id, version)| (id.to_string(), version))
+    };
     let vcv = selected_vcv
         .as_ref()
         .map(|(id, version)| (id.as_str(), *version));
@@ -97,6 +109,7 @@ pub fn assertions(
         .map(|received| (received.value, received.meta))?;
     if let Some(field) = reply.identity_problem(id, vcv) {
         reply.refusals = crate::Refusal::Refused;
+        reply.accession = None;
         reply.rows.clear();
         reply.included_only = None;
         if !reply
@@ -114,11 +127,41 @@ pub fn assertions(
     Ok(crate::Mapped {
         refusals: reply.refusals,
         value: Assertions {
+            archive: reply.archive(),
             rows: reply.rows,
             included_only: reply.included_only,
         },
         problems: reply.problems,
     })
+}
+
+/// Find a condition or submission accession and verify membership in the current archive.
+pub fn by_assertion(
+    leg: &Leg<'_>,
+    accession: &biomcp_types::VariantInput,
+) -> Result<Option<crate::Mapped<Assertions>>, RequestError> {
+    let input = accession.as_str();
+    let (record, version) = input
+        .split_once('.')
+        .map_or((input, None), |(id, version)| (id, Some(version)));
+    let Some(id) = search::variation_id(leg, record)? else {
+        return Ok(None);
+    };
+    let mut mapped = assertions(leg, &id.get().to_string(), None, None)?;
+    mapped.value.rows.retain_mut(|row| {
+        row.matched = row.record.as_ref().is_some_and(|id| id.as_str() == record)
+            && version.is_none_or(|expected| {
+                row.attribution()
+                    .and_then(|a| a.version.as_ref())
+                    .is_some_and(|v| v.as_str() == expected)
+            });
+        row.matched
+    });
+    if mapped.value.rows.is_empty() {
+        mapped.value.archive = None;
+        mapped.value.included_only = None;
+    }
+    Ok(Some(mapped))
 }
 
 /// Complete source policy and command declaration.

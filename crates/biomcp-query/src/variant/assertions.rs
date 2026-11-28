@@ -249,6 +249,7 @@ fn read(
         AssertionSource::Clinvar => biomcp_adapters::clinvar::assertions(
             &leg,
             input.strip_prefix("clinvar:").unwrap_or(input),
+            query.input().versioned_vcv(),
             selection,
         )
         .map(|mapped| {
@@ -296,7 +297,7 @@ fn read(
         dropped,
     )
 }
-fn page(
+pub(super) fn page(
     query: &VariantAssertionsGet,
     mut rows: Vec<VariantAssertion>,
     included_only: Option<ClinvarIncluded>,

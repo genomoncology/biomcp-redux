@@ -1,7 +1,8 @@
 use crate::{Build, VariantInput, VariantNamespace};
 use serde::{Deserialize, Serialize};
-#[doc = " Read an rsID, CAid, clinvar:N, VCV accession, reference-qualified HGVS or \
-    VCF-style genomic coordinates such as 7-140753336-A-T through the shared resolver. \
+#[doc = " Read an rsID, CAid, clinvar:N, ClinVar accession, reference-qualified HGVS or \
+    VCF-style coordinates such as 7-140753336-A-T. RCV and SCV select matching rows in the current \
+    ClinVar archive. A versioned VCV requires that exact archive. \
     MyVariant identity lookups default to GRCh38; --build overrides it. \
     Chromosome genomic HGVS requires --build. Use search variant --gene BRAF --protein V600E \
     or search variant --gene PTEN --coding c.333G>T for coding changes. A gene and protein \
@@ -30,7 +31,7 @@ fn lookup_input<'de, D: serde::Deserializer<'de>>(
 )]
 #[cfg_attr(feature = "schema", derive(schemars::JsonSchema))]
 struct Fields<R: ResolverChoice = VariantResolver> {
-    #[doc = "Variant ID or gene and protein. With civic alone, use a CIViC profile ID or exact name."]
+    #[doc = "Variant ID, RCV/SCV, or gene and protein. With civic alone, use a CIViC profile ID or exact name."]
     #[serde(deserialize_with = "lookup_input")]
     #[cfg_attr(feature = "schema", schemars(extend("x-positional" = 0)))]
     #[cfg_attr(
@@ -261,7 +262,8 @@ impl VariantGet {
     ) -> Result<Self, super::gene::QueryInvalid> {
         let build_defaulted = build.is_none() && input.coordinate_form();
         let build = build.or_else(|| build_defaulted.then_some(Self::DEFAULT_BUILD));
-        if input.namespace() == VariantNamespace::Unsupported {
+        if input.namespace() == VariantNamespace::Unsupported && input.clinvar_assertion().is_none()
+        {
             return Err(super::gene::QueryInvalid::new(&["input"]));
         }
         if input.protein().is_some() && resolver != VariantResolver::Car {

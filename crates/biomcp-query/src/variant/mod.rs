@@ -5,6 +5,7 @@ mod alphagenome_join;
 mod alphagenome_page;
 pub(crate) mod assertions;
 mod civic;
+mod clinvar;
 mod components;
 mod conservation;
 mod continuations;
@@ -41,6 +42,9 @@ pub(crate) fn lookup(cx: &Ctx<'_>, query: &VariantGet) -> Outcome {
 }
 
 fn get<'a>(cx: &Ctx<'a>, query: &VariantGet, deadline: &mut biomcp_fetch::Deadline<'a>) -> Outcome {
+    if query.input().clinvar_archive_lookup() {
+        return clinvar::get(cx, query, deadline);
+    }
     if let Some(source) = direct::source(cx.fetch, query) {
         return direct::get(cx, query, source, *deadline);
     }

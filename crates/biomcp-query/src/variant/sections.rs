@@ -78,10 +78,16 @@ pub(super) fn apply<'a>(
 ) -> (Vec<SourceOutcome>, Vec<Problem>, Option<RequestError>, bool) {
     let mut collected = Collected::default();
     for candidate in candidates {
-        let mut sections = VariantSections::default();
+        let mut sections = candidate
+            .sections
+            .take()
+            .map(|sections| *sections)
+            .unwrap_or_default();
+        let existing_clinvar = sections.clinvar.is_some();
         let origin = *deadline;
         let candidate_ref = &*candidate;
         let jobs: Vec<Box<dyn FnOnce() -> Completed<'a> + Send + '_>> = selected(query)
+            .filter(|section| *section != VariantSection::Clinvar || !existing_clinvar)
             .map(|section| {
                 Box::new(move || read(cx, query, candidate_ref, origin, population_reason, section))
                     as Box<dyn FnOnce() -> Completed<'a> + Send + '_>
@@ -107,7 +113,7 @@ pub(super) fn apply<'a>(
                 *deadline = completed;
             }
         }
-        if !query.sections().is_empty() {
+        if existing_clinvar || !query.sections().is_empty() {
             candidate.sections = Some(Box::new(sections));
         }
     }

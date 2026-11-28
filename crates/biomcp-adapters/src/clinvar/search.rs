@@ -30,7 +30,58 @@ struct Page {
     idlist: Vec<Field<Id>>,
     #[serde(rename = "ERROR")]
     error: Option<serde::de::IgnoredAny>,
-    errorlist: Option<serde::de::IgnoredAny>,
+    errorlist: Option<SearchErrors>,
+}
+#[derive(Deserialize)]
+struct SearchErrors {
+    fieldsnotfound: Vec<String>,
+    phrasesnotfound: Vec<String>,
+}
+#[derive(Deserialize)]
+struct AccessionSearch {
+    esearchresult: Page,
+}
+impl Reply for AccessionSearch {
+    fn check(&self) -> Result<(), BadReply> {
+        let page = &self.esearchresult;
+        if page.error.is_some()
+            || page.retstart != "0"
+            || page.idlist.iter().any(|id| id.as_ref().is_none())
+            || !matches!((page.count, page.idlist.len()), (0, 0) | (1, 1))
+            || page.errorlist.as_ref().is_some_and(|errors| {
+                !errors.fieldsnotfound.is_empty()
+                    || (!errors.phrasesnotfound.is_empty() && page.count != 0)
+            })
+        {
+            return Err(BadReply);
+        }
+        Ok(())
+    }
+}
+
+pub(super) fn variation_id(
+    leg: &Leg<'_>,
+    accession: &str,
+) -> Result<Option<ClinVarVariationId>, RequestError> {
+    let term = format!("{accession}[clv_acc]");
+    let reply = leg.call(
+        &SEARCH,
+        Input::Params(&[
+            ("db", Arg::Text("clinvar")),
+            ("term", Arg::Text(&term)),
+            ("retmode", Arg::Text("json")),
+            ("retmax", Arg::Num(1)),
+            ("tool", Arg::Text("biomcp")),
+        ]),
+        Read::<AccessionSearch>::json(),
+    )?;
+    Ok(reply
+        .value
+        .esearchresult
+        .idlist
+        .first()
+        .and_then(|id| id.as_ref())
+        .map(|id| id.identity))
 }
 #[derive(Deserialize)]
 #[serde(try_from = "String")]

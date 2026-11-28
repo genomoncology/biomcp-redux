@@ -172,7 +172,10 @@ pub(super) fn next(
             false,
         ));
     }
-    if query.sections().is_empty() && !candidates.is_empty() {
+    if query.sections().is_empty()
+        && !query.input().clinvar_archive_lookup()
+        && !candidates.is_empty()
+    {
         let section = query
             .clone()
             .with_sections(vec![biomcp_types::VariantSection::Clinvar].into());

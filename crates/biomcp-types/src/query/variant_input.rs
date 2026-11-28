@@ -11,6 +11,7 @@ pub struct VariantInput {
 #[derive(Clone, Debug, PartialEq, Eq)]
 enum InputKind {
     Id(crate::VariantId),
+    ClinvarAssertion(crate::AssertionId),
     Hgvs(crate::HgvsText),
     Chromosome,
     Coordinates { hgvs: String, single_base: bool },
@@ -84,6 +85,16 @@ impl VariantInput {
         Ok(Self { text, kind })
     }
     pub(super) fn lookup(value: &str) -> Result<Self, Error> {
+        let assertion = value
+            .parse::<crate::RcvId>()
+            .map(crate::AssertionId::Rcv)
+            .or_else(|_| value.parse::<crate::ScvId>().map(crate::AssertionId::Scv));
+        if let Ok(assertion) = assertion {
+            return Ok(Self {
+                text: input_text(value)?,
+                kind: InputKind::ClinvarAssertion(assertion),
+            });
+        }
         if let Some(pair) = super::variant_search::parse_shorthand(value) {
             return Ok(Self {
                 text: crate::Text::new(value).map_err(|_| Error::VariantInputInvalid)?,
@@ -243,6 +254,24 @@ impl VariantInput {
             _ => None,
         }
     }
+    /// Accessions that need a checked ClinVar archive rather than an allele resolver.
+    pub fn clinvar_archive_lookup(&self) -> bool {
+        self.clinvar_assertion().is_some() || self.versioned_vcv().is_some()
+    }
+    /// An RCV or SCV accession admitted by variant get.
+    pub fn clinvar_assertion(&self) -> Option<&crate::AssertionId> {
+        match &self.kind {
+            InputKind::ClinvarAssertion(id) => Some(id),
+            _ => None,
+        }
+    }
+    /// A VCV accession with a caller-specified archive version.
+    pub fn versioned_vcv(&self) -> Option<crate::VcvId> {
+        match self.identity() {
+            Some(crate::VariantId::Vcv(id)) if id.version().is_some() => Some(*id),
+            _ => None,
+        }
+    }
     /// Classify a published namespace, without parsing molecular meaning.
     pub fn namespace(&self) -> VariantNamespace {
         match &self.kind {
@@ -251,7 +280,7 @@ impl VariantInput {
             InputKind::Id(crate::VariantId::ClinVarVariation(_) | crate::VariantId::Vcv(_)) => {
                 VariantNamespace::ClinVar
             }
-            InputKind::Id(_) => VariantNamespace::Unsupported,
+            InputKind::Id(_) | InputKind::ClinvarAssertion(_) => VariantNamespace::Unsupported,
             InputKind::Hgvs(_) => VariantNamespace::Hgvs,
             InputKind::Protein(_) => VariantNamespace::Protein,
             InputKind::CivicProfile => VariantNamespace::CivicProfile,

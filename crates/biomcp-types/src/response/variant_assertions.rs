@@ -49,6 +49,9 @@ pub struct VariantAssertion {
     /// Source record ID, at this path on mapped and unmapped rows alike.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub record: Option<Text>,
+    /// This row matches the RCV or SCV accession requested by variant get.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub matched: bool,
     /// Source submitter or panel, at this path on mapped and unmapped rows alike.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub submitter: Option<Text>,

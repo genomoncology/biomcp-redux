@@ -40,6 +40,15 @@ pub(super) fn source(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Option<
 }
 /// Use the execution router before adding any identity-provider requirement.
 pub(crate) fn requirements(fetch: &biomcp_fetch::Fetch, query: &VariantGet) -> Vec<Source> {
+    if query.input().clinvar_archive_lookup() {
+        return std::iter::once(Source::ClinVar)
+            .chain(
+                super::sections::selected(query)
+                    .filter(|section| *section != VariantSection::Clinvar)
+                    .map(|section| super::sections::source(section).unwrap_or(Source::MyVariant)),
+            )
+            .collect();
+    }
     if let Some(source) = source(fetch, query) {
         return vec![source];
     }
