@@ -4,7 +4,7 @@ use biomcp_fetch::{BadReply, KeyKind, Keys, Row};
 use biomcp_types::{PurpleBookLicense, PurpleBookPresentation};
 use csv::{ReaderBuilder, StringRecord, Trim};
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 
 const TITLE: &str = "Purple Book Monthly Historical Data Changes Report - ";
 pub(super) const MONTHS: [&str; 12] = [
@@ -105,29 +105,37 @@ pub(super) struct Stored {
     pub(super) row: PurpleBookPresentation,
 }
 impl Stored {
-    fn reference_blas(&self) -> impl Iterator<Item = &DrugId> {
-        self.row
-            .reference_bla
+    fn search_keys(&self) -> impl Iterator<Item = &str> {
+        let row = &self.row;
+        [
+            row.name.as_ref(),
+            row.proper_name.as_ref(),
+            row.bla.as_str(),
+            row.reference_name.as_ref(),
+            row.reference_proper_name.as_ref(),
+        ]
+        .into_iter()
+        .chain(
+            row.reference_bla
             .iter()
-            .chain(self.row.reference_bla_candidates.iter())
+                .chain(row.reference_bla_candidates.iter())
+                .map(DrugId::as_str),
+        )
+        .filter(|key| !key.is_empty())
     }
     pub(super) fn matches(&self, query: &str) -> bool {
-        self.row.reference_name.eq_ignore_ascii_case(query)
-            || self.row.reference_proper_name.eq_ignore_ascii_case(query)
-            || self
-                .reference_blas()
-                .any(|bla| bla.to_string().eq_ignore_ascii_case(query))
+        self.search_keys().any(|key| key.eq_ignore_ascii_case(query))
     }
 }
 impl Row for Stored {
     fn keys(&self) -> Keys {
-        let names = [&self.row.reference_name, &self.row.reference_proper_name];
         Keys {
-            exact: names
+            exact: self
+                .search_keys()
+                .map(str::to_ascii_lowercase)
+                .collect::<BTreeSet<_>>()
                 .into_iter()
-                .cloned()
-                .chain(self.reference_blas().map(|bla| bla.to_string().into()))
-                .map(|key| (KeyKind::Xref, key))
+                .map(|key| (KeyKind::Alias, key.into()))
                 .collect(),
             words: Vec::new(),
         }
@@ -142,6 +150,10 @@ pub(super) struct Release {
     pub(super) date: String,
     pub(super) rows: Vec<Stored>,
 }
+
+// Imports written before the full roster kept only biosimilars. A suffix lets
+// the same FDA month replace its old projection without allowing older months.
+pub(super) const FULL_ROSTER_SUFFIX: &str = "/full";
 
 pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
     let mut reader = ReaderBuilder::new()
@@ -191,24 +203,22 @@ pub(super) fn decode(bytes: &[u8]) -> Result<Release, BadReply> {
     rows.sort_unstable_by(|(_, a), (_, b)| {
         (&a.bla, &a.product_number).cmp(&(&b.bla, &b.product_number))
     });
-    let mut biosimilars = Vec::new();
+    if rows.iter().all(|(_, row)| row.license_type.as_ref() == "351(a)") {
+        return Err(BadReply);
+    }
+    let stored_date = format!("{date}{FULL_ROSTER_SUFFIX}");
+    let mut presentations = Vec::with_capacity(rows.len());
     for (bla, row) in rows {
-        if row.license_type.as_ref() == "351(a)" {
-            continue;
-        }
         let candidates = references.get(&name_key(&row.reference_name, &row.reference_proper_name));
-        biosimilars.push(Stored {
-            date: date.as_str().into(),
+        presentations.push(Stored {
+            date: stored_date.as_str().into(),
             row: presentation(bla, row, candidates)?,
         });
-    }
-    if biosimilars.is_empty() {
-        return Err(BadReply);
     }
     Ok(Release {
         month,
         date,
-        rows: biosimilars,
+        rows: presentations,
     })
 }
 
@@ -233,7 +243,8 @@ fn presentation(
     candidates: Option<&BTreeMap<Box<str>, DrugId>>,
 ) -> Result<PurpleBookPresentation, BadReply> {
     let license_type = row.license_type.parse().map_err(|_| BadReply)?;
-    if row.name.is_empty() || row.reference_name.is_empty() || row.reference_proper_name.is_empty()
+    if license_type != PurpleBookLicense::Standalone
+        && (row.name.is_empty() || row.reference_name.is_empty() || row.reference_proper_name.is_empty())
     {
         return Err(BadReply);
     }

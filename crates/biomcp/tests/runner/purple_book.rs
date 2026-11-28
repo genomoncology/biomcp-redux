@@ -56,13 +56,20 @@ fn import() -> Result<(), Box<dyn std::error::Error>> {
         .pointer("/result/release_month")
         .and_then(Value::as_str)
         != Some("November 2026")
-        || retained.pointer("/page/total").and_then(Value::as_u64) != Some(1)
+        || retained.pointer("/page/total").and_then(Value::as_u64) != Some(2)
         || retained
-            .pointer("/result/items/0/applicant")
+            .pointer("/result/items/1/applicant")
             .and_then(Value::as_str)
             != Some("Samsung Bioepis Co., Ltd.")
     {
         return Err(format!("failed import changed the active full roster: {retained}").into());
+    }
+    let search = ["search", "drug", "761066", "--source", "purple-book"].map(str::to_owned);
+    let product = command(&env, &search, &offline, 0)?;
+    if product.pointer("/result/items/0/bla").and_then(Value::as_str) != Some("BLA761066")
+        || product.pointer("/page/total").and_then(Value::as_u64) != Some(1)
+    {
+        return Err(format!("the import did not index the biosimilar BLA: {product}").into());
     }
     Ok(())
 }
