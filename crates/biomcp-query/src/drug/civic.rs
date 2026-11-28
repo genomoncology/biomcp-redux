@@ -100,11 +100,15 @@ pub(super) fn matched_therapies(
     if candidates.len() < 2 {
         return;
     }
+    let unread: Vec<_> = candidates.iter().skip(1).map(|c| c.1.id.to_string()).collect();
     resolution.reason = Some(
         format!(
             "CIViC lists {} therapies under this name, each with its own evidence and \
-             assertions; this reply reads therapy {} only; get each alternative to read the others",
-            resolution.total, body.identity.id
+             assertions; this reply reads therapy {} only and does not read therapy {}; get each \
+             alternative to read the others",
+            resolution.total,
+            body.identity.id,
+            unread.join(", ")
         )
         .into(),
     );
@@ -131,6 +135,10 @@ pub(super) fn matched_therapies(
         }
     }
     out.next.splice(0..0, reads);
+    // Models read a complete reply as the whole answer; the unread therapies make it partial.
+    if out.status() == biomcp_types::Status::Complete {
+        crate::status::item(out, true, false, true);
+    }
 }
 
 pub(super) fn get(cx: &Ctx<'_>, query: &DrugGet) -> Outcome {
